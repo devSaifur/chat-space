@@ -2,7 +2,7 @@ import { serve } from '@hono/node-server'
 import { createNodeWebSocket } from '@hono/node-ws'
 import { Hono } from 'hono'
 
-import { wsHandler } from './feat/ws'
+import { wsHandler } from './services/ws'
 
 const app = new Hono()
 
