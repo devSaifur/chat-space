@@ -4,9 +4,9 @@
         "dev": "tsx watch src/index.ts"
     },
     "dependencies": {
-        "@hono/node-server": "^1.13.1",
+        "@hono/node-server": "^1.13.2",
         "@hono/node-ws": "^1.0.4",
-        "@hono/zod-validator": "^0.4.1",
+        "@hono/valibot-validator": "^0.4.0",
         "@lucia-auth/adapter-drizzle": "^1.1.0",
         "@node-rs/argon2": "^2.0.0",
         "drizzle-orm": "^0.33.0",
@@ -14,7 +14,7 @@
         "kafkajs": "^2.2.4",
         "lucia": "^3.2.1",
         "postgres": "^3.4.4",
-        "zod": "^3.23.8"
+        "valibot": "^0.42.1"
     },
     "devDependencies": {
         "@eslint/js": "^9.12.0",

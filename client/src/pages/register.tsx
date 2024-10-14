@@ -1,4 +1,4 @@
-import { zodResolver } from '@hookform/resolvers/zod'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import {
   registerSchema,
   RegisterSchema
@@ -22,7 +22,7 @@ export const description =
 
 export default function RegisterPage() {
   const { register, formState, handleSubmit } = useForm<RegisterSchema>({
-    resolver: zodResolver(registerSchema),
+    resolver: valibotResolver(registerSchema),
     defaultValues: {
       name: '',
       username: '',

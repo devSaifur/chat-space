@@ -1,4 +1,4 @@
-import { zValidator } from '@hono/zod-validator'
+import { vValidator } from '@hono/valibot-validator'
 import { hash, verify } from '@node-rs/argon2'
 import { Hono } from 'hono'
 import { generateId } from 'lucia'
@@ -8,7 +8,7 @@ import { lucia } from '../lib/auth'
 import { loginSchema, registerSchema } from '../lib/validators/authValidators'
 
 export const authRoutes = new Hono()
-    .post('/login', zValidator('json', loginSchema), async (c) => {
+    .post('/login', vValidator('json', loginSchema), async (c) => {
         const { email, password } = c.req.valid('json')
         try {
             const existingUser = await getUserByEmail(email)
@@ -32,7 +32,7 @@ export const authRoutes = new Hono()
             return c.body('Internal server error', 500)
         }
     })
-    .post('/register', zValidator('json', registerSchema), async (c) => {
+    .post('/register', vValidator('json', registerSchema), async (c) => {
         const user = c.req.valid('json')
         try {
             const existingUser = await getUserByEmail(user.email)

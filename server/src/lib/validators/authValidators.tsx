@@ -1,27 +1,41 @@
-import * as z from 'zod'
+import * as v from 'valibot'
 
-export const loginSchema = z.object({
-    email: z.string().email({
-        message: 'Please enter a valid email address'
-    }),
-    password: z.string().min(8, { message: 'Password must be at least 8 characters' })
+export const loginSchema = v.object({
+    email: v.pipe(
+        v.string('Invalid email'), 
+        v.nonEmpty('Please enter your email'), 
+        v.email('Invalid email')
+    ),
+    password: v.pipe(
+        v.string('Invalid password'), 
+        v.nonEmpty('Please enter your password'), 
+        v.minLength(8, 'Password must be at least 8 characters')
+    )
 })
 
-export type LoginSchema = z.infer<typeof loginSchema>
+export type LoginSchema = v.InferOutput<typeof loginSchema>
 
-export const registerSchema = z.object({
-    name: z
-        .string()
-        .min(1, { message: 'Name is required' })
-        .max(100, { message: 'Name must be less than 100 characters' }),
-    username: z
-        .string()
-        .min(1, { message: 'Username is required' })
-        .max(100, { message: 'Username must be less than 100 characters' }),
-    email: z.string().email({
-        message: 'Please enter a valid email address'
-    }),
-    password: z.string().min(8, { message: 'Password must be at least 8 characters' })
+export const registerSchema = v.object({
+    name: v.pipe(
+        v.string('Invalid name'), 
+        v.nonEmpty('Please enter your name'), 
+        v.minLength(2, 'Name must be at least 2 characters')
+    ),
+    username: v.pipe(
+        v.string('Invalid username'), 
+        v.nonEmpty('Please enter your username'), 
+        v.minLength(2, 'Username must be at least 2 characters')
+    ),
+    email: v.pipe(
+        v.string('Invalid email'), 
+        v.nonEmpty('Please enter your email'), 
+        v.email('Invalid email')
+    ),
+    password: v.pipe(
+        v.string('Invalid password'), 
+        v.nonEmpty('Please enter your password'), 
+        v.minLength(8, 'Password must be at least 8 characters')
+    )
 })
 
-export type RegisterSchema = z.infer<typeof registerSchema>
+export type RegisterSchema = v.InferOutput<typeof registerSchema>

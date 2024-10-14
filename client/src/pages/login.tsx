@@ -1,4 +1,4 @@
-import { zodResolver } from '@hookform/resolvers/zod'
+import { valibotResolver } from '@hookform/resolvers/valibot'
 import { LoginSchema, loginSchema } from '@server/lib/validators/authValidators'
 import { useForm } from 'react-hook-form'
 import { Link } from 'wouter'
@@ -19,7 +19,7 @@ export const description =
 
 export default function LoginPage() {
   const { register, formState, handleSubmit } = useForm<LoginSchema>({
-    resolver: zodResolver(loginSchema),
+    resolver: valibotResolver(loginSchema),
     defaultValues: {
       email: '',
       password: ''
