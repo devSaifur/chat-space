@@ -1,23 +1,35 @@
 {
-  "name": "talk-space",
-  "version": "1.0.0",
-  "description": "A self-hostable privet user friendly chat app",
-  "scripts": {
-    "dev:server": "pnpm --prefix server dev",
-    "dev:client": "pnpm --prefix client dev",
-    "dev": "concurrently \"pnpm dev:server\" \"pnpm dev:client\"",
-    "format": "prettier --write ."
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
-    "concurrently": "^9.0.1",
-    "prettier": "^3.3.3",
-    "prettier-plugin-tailwindcss": "^0.6.8"
-  },
-  "dependencies": {
-    "hono": "^4.6.3"
-  }
+    "name": "server",
+    "scripts": {
+        "dev:server": "tsx watch src/index.ts",
+        "dev:client": "pnpm --prefix client dev",
+        "dev": "concurrently \"pnpm dev:server\" \"pnpm dev:client\""
+    },
+    "dependencies": {
+        "@hono/node-server": "^1.13.2",
+        "@hono/node-ws": "^1.0.4",
+        "@hono/valibot-validator": "^0.4.0",
+        "@lucia-auth/adapter-drizzle": "^1.1.0",
+        "@node-rs/argon2": "^2.0.0",
+        "drizzle-orm": "^0.33.0",
+        "ioredis": "^5.4.1",
+        "kafkajs": "^2.2.4",
+        "lucia": "^3.2.1",
+        "postgres": "^3.4.4",
+        "hono": "^4.6.3",
+        "valibot": "0.42.1"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.12.0",
+        "@types/node": "^20.16.11",
+        "drizzle-kit": "^0.24.2",
+        "eslint": "^9.12.0",
+        "globals": "^15.11.0",
+        "tsx": "^4.19.1",
+        "typescript-eslint": "^8.9.0",
+        "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
+        "concurrently": "^9.0.1",
+        "prettier": "^3.3.3",
+        "prettier-plugin-tailwindcss": "^0.6.8"
+    }
 }

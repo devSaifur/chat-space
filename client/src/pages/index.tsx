@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   ChevronLeft,
-  Mic,
   MoreVertical,
   Paperclip,
   Search,
@@ -187,6 +186,7 @@ const contacts: Contact[] = [
 
 export default function HomePage() {
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
+  const wsRef = useRef<WebSocket | null>(null)
   const [message, setMessage] = useState('')
   const chatEndRef = useRef<HTMLDivElement>(null)
 
@@ -211,6 +211,31 @@ export default function HomePage() {
       setMessage('')
     }
   }
+
+  useEffect(() => {
+    const ws = new WebSocket('ws://localhost:3000')
+
+    wsRef.current = ws
+
+    ws.onopen = () => {
+      console.log('WebSocket connection established')
+    }
+
+    ws.onmessage = (event) => {
+      console.log('Message received from server:', event.data)
+      if (typeof event.data === 'string') {
+        setMessage(event.data)
+      }
+    }
+
+    ws.onclose = () => {
+      console.log('WebSocket connection closed')
+    }
+
+    return () => {
+      ws.close()
+    }
+  }, [])
 
   useEffect(() => {
     if (chatEndRef.current) {
@@ -335,15 +360,9 @@ export default function HomePage() {
                 onChange={(e) => setMessage(e.target.value)}
                 className="mx-2 flex-1"
               />
-              {message ? (
-                <Button type="submit" size="icon">
-                  <Send className="h-5 w-5" />
-                </Button>
-              ) : (
-                <Button variant="ghost" size="icon">
-                  <Mic className="h-5 w-5" />
-                </Button>
-              )}
+              <Button type="submit" size="icon">
+                <Send className="h-5 w-5" />
+              </Button>
             </form>
           </>
         ) : (
