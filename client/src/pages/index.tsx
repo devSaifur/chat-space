@@ -209,7 +209,7 @@ export default function HomePage() {
         time: 'Just now'
       })
       setMessage('')
-      wsRef.current?.send(JSON.stringify({ type: 'message', message }))
+      wsRef.current?.send(JSON.stringify({ type: 'message', data: message }))
     }
   }
 
@@ -221,12 +221,12 @@ export default function HomePage() {
     }
 
     wsRef.current.onmessage = (evt) => {
-      if (typeof evt.data === 'string' && selectedContact) {
+      if (selectedContact) {
         const data = JSON.parse(evt.data.toString())
         if (data.type === 'message') {
           setSelectedContact({
             ...selectedContact,
-            lastMessage: message,
+            lastMessage: data.data,
             time: new Date().toLocaleTimeString([], {
               hour: '2-digit',
               minute: '2-digit'
@@ -236,7 +236,7 @@ export default function HomePage() {
               {
                 id: selectedContact.messages.length + 1,
                 sender: 'user',
-                content: message,
+                content: data.data,
                 time: new Date().toLocaleTimeString([], {
                   hour: '2-digit',
                   minute: '2-digit'
@@ -250,9 +250,6 @@ export default function HomePage() {
 
     wsRef.current.onclose = () => {
       console.log('WebSocket connection closed')
-    }
-    return () => {
-      wsRef.current?.close()
     }
   }, [selectedContact, message])
 

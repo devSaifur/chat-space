@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@hono/node-server':
-        specifier: ^1.13.2
-        version: 1.13.2(hono@4.6.5)
       '@hono/valibot-validator':
         specifier: ^0.4.0
         version: 0.4.0(hono@4.6.5)(valibot@0.42.1(typescript@5.6.3))
@@ -48,6 +45,9 @@ importers:
       '@types/bun':
         specifier: latest
         version: 1.1.11
+      '@types/node':
+        specifier: ^22.7.6
+        version: 22.7.6
       concurrently:
         specifier: ^9.0.1
         version: 9.0.1
@@ -462,12 +462,6 @@ packages:
     resolution: {integrity: sha512-vH9PiIMMwvhCx31Af3HiGzsVNULDbyVkHXwlemn/B0TFj/00ho3y55efXrUZTfQipxoHC5u4xq6zblww1zm1Ig==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@hono/node-server@1.13.2':
-    resolution: {integrity: sha512-0w8nEmAyx0Ul0CQp8BL2VtAG4YVdpzXd/mvvM+l0G5Oq22pUyHS+KeFFPSY+czLOF5NAiV3MUNPD1n14Ol5svg==}
-    engines: {node: '>=18.14.1'}
-    peerDependencies:
-      hono: ^4
-
   '@hono/valibot-validator@0.4.0':
     resolution: {integrity: sha512-X+e71gQlXkyuQLzU+awMOsYcApMP9Ga0wntDHoCiRj0gSsVJr7WRtgiPk2YeGhUnUJlm7q9ThLkYhUbqIhdCOA==}
     peerDependencies:
@@ -561,6 +555,9 @@ packages:
 
   '@types/node@20.12.14':
     resolution: {integrity: sha512-scnD59RpYD91xngrQQLGkE+6UrHUPzeKZWhhjBSa3HSkwjbQc38+q3RoIVEwxQGRw3M+j5hpNAM+lgV3cVormg==}
+
+  '@types/node@22.7.6':
+    resolution: {integrity: sha512-/d7Rnj0/ExXDMcioS78/kf1lMzYk4BZV8MZGTBKzTGZ6/406ukkbYlIsZmMPhcR5KlkunDHQLrtAVmSq7r+mSw==}
 
   '@types/ws@8.5.12':
     resolution: {integrity: sha512-3tPRkv1EtkDpzlgyKyI8pGsGZAGPEaXeu0DOj5DI25Ja91bdAYddYHbADRYVrZMRbfW+1l5YwXVDKohDJNQxkQ==}
@@ -1342,6 +1339,9 @@ packages:
   undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
 
+  undici-types@6.19.8:
+    resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
+
   update-browserslist-db@1.1.1:
     resolution: {integrity: sha512-R8UzCaa9Az+38REPiJ1tXlImTJXlVfgHZsglwBD/k6nj76ctsH1E3q4doGrukiLQd3sGQYu56r5+lo5r94l29A==}
     hasBin: true
@@ -1696,10 +1696,6 @@ snapshots:
     dependencies:
       levn: 0.4.1
 
-  '@hono/node-server@1.13.2(hono@4.6.5)':
-    dependencies:
-      hono: 4.6.5
-
   '@hono/valibot-validator@0.4.0(hono@4.6.5)(valibot@0.42.1(typescript@5.6.3))':
     dependencies:
       hono: 4.6.5
@@ -1789,9 +1785,13 @@ snapshots:
     dependencies:
       undici-types: 5.26.5
 
+  '@types/node@22.7.6':
+    dependencies:
+      undici-types: 6.19.8
+
   '@types/ws@8.5.12':
     dependencies:
-      '@types/node': 20.12.14
+      '@types/node': 22.7.6
 
   '@typescript-eslint/eslint-plugin@8.9.0(@typescript-eslint/parser@8.9.0(eslint@9.12.0)(typescript@5.6.3))(eslint@9.12.0)(typescript@5.6.3)':
     dependencies:
@@ -2458,6 +2458,8 @@ snapshots:
   typescript@5.6.3: {}
 
   undici-types@5.26.5: {}
+
+  undici-types@6.19.8: {}
 
   update-browserslist-db@1.1.1(browserslist@4.24.0):
     dependencies:

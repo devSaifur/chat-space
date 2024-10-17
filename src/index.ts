@@ -11,7 +11,7 @@ import { authRoutes } from './routes/authRoutes'
 
 const app = new Hono()
 
-const { upgradeWebSocket } = createBunWebSocket<ServerWebSocket>()
+const { upgradeWebSocket, websocket } = createBunWebSocket<ServerWebSocket>()
 
 app.use(logger())
 app.use(csrf())
@@ -29,4 +29,4 @@ console.log(`Server is running on port ${port}`)
 
 export type ApiServer = typeof apiServer
 
-export default app
+export default { fetch: app.fetch, websocket }
