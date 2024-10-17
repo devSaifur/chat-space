@@ -1,5 +1,4 @@
 import { vValidator } from '@hono/valibot-validator'
-import { hash, verify } from '@node-rs/argon2'
 import { Hono } from 'hono'
 import { generateId } from 'lucia'
 
@@ -17,7 +16,7 @@ export const authRoutes = new Hono()
                 return c.json({ message: 'Invalid email or password' }, 401)
             }
 
-            const validUser = await verify(existingUser.password, password)
+            const validUser = await Bun.password.verify(password, existingUser.password)
 
             if (!validUser) {
                 return c.json({ message: 'Invalid email or password' }, 401)
@@ -41,7 +40,7 @@ export const authRoutes = new Hono()
                 return c.json({ message: 'User already exists' }, 400)
             }
 
-            const hashedPassword = await hash(user.password)
+            const hashedPassword = await Bun.password.hash(user.password)
 
             const userId = generateId(15)
 

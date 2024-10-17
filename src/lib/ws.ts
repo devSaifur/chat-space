@@ -1,7 +1,8 @@
+import type { ServerWebSocket } from 'bun'
 import type { Context } from 'hono'
 import type { WSEvents } from 'hono/ws'
 
-export const wsHandler = (c: Context): WSEvents | Promise<WSEvents> => ({
+export const wsHandler = (c: Context): WSEvents<ServerWebSocket> | Promise<WSEvents<ServerWebSocket>> => ({
     onOpen: (evt, ws) => {
         console.log('ws opened')
         ws.send('Websocket server connected')

@@ -209,33 +209,52 @@ export default function HomePage() {
         time: 'Just now'
       })
       setMessage('')
+      wsRef.current?.send(JSON.stringify({ type: 'message', message }))
     }
   }
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:3000')
+    wsRef.current = new WebSocket('ws://localhost:3000')
 
-    wsRef.current = ws
-
-    ws.onopen = () => {
+    wsRef.current.onopen = () => {
       console.log('WebSocket connection established')
     }
 
-    ws.onmessage = (event) => {
-      console.log('Message received from server:', event.data)
-      if (typeof event.data === 'string') {
-        setMessage(event.data)
+    wsRef.current.onmessage = (evt) => {
+      if (typeof evt.data === 'string' && selectedContact) {
+        const data = JSON.parse(evt.data.toString())
+        if (data.type === 'message') {
+          setSelectedContact({
+            ...selectedContact,
+            lastMessage: message,
+            time: new Date().toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit'
+            }),
+            messages: [
+              ...selectedContact.messages,
+              {
+                id: selectedContact.messages.length + 1,
+                sender: 'user',
+                content: message,
+                time: new Date().toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })
+              }
+            ]
+          })
+        }
       }
     }
 
-    ws.onclose = () => {
+    wsRef.current.onclose = () => {
       console.log('WebSocket connection closed')
     }
-
     return () => {
-      ws.close()
+      wsRef.current?.close()
     }
-  }, [])
+  }, [selectedContact, message])
 
   useEffect(() => {
     if (chatEndRef.current) {

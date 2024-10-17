@@ -27,7 +27,7 @@ export async function authMiddleware(c: Context, next: Next) {
 
     c.set('user', user)
     c.set('session', session)
-    return await next()
+    await next()
 }
 
 type Env = {
