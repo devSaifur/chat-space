@@ -256,10 +256,6 @@ export default function HomePage() {
     wsRef.current.onclose = () => {
       console.log('WebSocket connection closed')
     }
-
-    return () => {
-      wsRef.current?.close()
-    }
   }, [onMessageReceived])
 
   useEffect(() => {

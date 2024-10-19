@@ -1,6 +1,6 @@
-import type { ServerWebSocket } from 'bun'
+import { serve } from '@hono/node-server'
+import { createNodeWebSocket } from '@hono/node-ws'
 import { Hono } from 'hono'
-import { createBunWebSocket } from 'hono/bun'
 import { cors } from 'hono/cors'
 import { csrf } from 'hono/csrf'
 import { logger } from 'hono/logger'
@@ -11,7 +11,7 @@ import { authRoutes } from './routes/authRoutes'
 
 const app = new Hono()
 
-const { upgradeWebSocket, websocket } = createBunWebSocket<ServerWebSocket>()
+const { upgradeWebSocket, injectWebSocket } = createNodeWebSocket({ app })
 
 app.use(logger())
 app.use(csrf())
@@ -27,6 +27,10 @@ app.get('/', upgradeWebSocket(wsHandler))
 const port = 3000
 console.log(`Server is running on port ${port}`)
 
+const server = serve(app)
+
+injectWebSocket(server)
+
 export type ApiServer = typeof apiServer
 
-export default { fetch: app.fetch, websocket }
+export default server

@@ -1,6 +1,5 @@
-import type { ServerWebSocket } from 'bun'
 import type { Context } from 'hono'
-import type { WSEvents } from 'hono/ws'
+import type { WSContext, WSEvents } from 'hono/ws'
 
 import { pub, sub } from './redis'
 
@@ -9,17 +8,25 @@ type WSMessage = {
     data: string
 }
 
-export const wsHandler = (c: Context): WSEvents<ServerWebSocket> | Promise<WSEvents<ServerWebSocket>> => ({
+const activeConnections = new Set<WSContext>()
+
+function broadcastMessage(data: string) {
+    for (const ws of activeConnections) {
+        ws.send(data)
+    }
+}
+
+export const wsHandler = (c: Context): WSEvents | Promise<WSEvents> => ({
     onOpen: (evt, ws) => {
         console.log('WebSocket connection opened')
-
-        ws.raw?.subscribe('chat')
+        activeConnections.add(ws)
 
         sub.subscribe('MESSAGE')
+
         sub.on('message', (channel, message) => {
             if (channel === 'MESSAGE') {
                 console.log('message received from redis: ', message)
-                ws.raw?.publish('chat', message)
+                broadcastMessage(message)
             }
         })
     },
@@ -40,11 +47,7 @@ export const wsHandler = (c: Context): WSEvents<ServerWebSocket> | Promise<WSEve
 
     onClose: (evt, ws) => {
         console.log('ws closed')
-        const isConnectionClose = ws.readyState === 3
-
-        if (isConnectionClose && ws.raw) {
-            ws.raw.unsubscribe('chat')
-        }
+        activeConnections.delete(ws)
     },
 
     onError: (evt, ws) => {
