@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+    redis:
+        image: 'redis:latest'
+        restart: always
+        environment:
+            - redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+        ports:
+            - '6379:6379'
+        volumes:
+            - redis-data:/data
+        env_file:
+            - .env
+
+volumes:
+    redis-data:
+        driver: local

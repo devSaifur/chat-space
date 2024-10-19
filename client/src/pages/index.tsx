@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   ChevronLeft,
   MoreVertical,
@@ -213,16 +213,10 @@ export default function HomePage() {
     }
   }
 
-  useEffect(() => {
-    wsRef.current = new WebSocket('ws://localhost:3000')
-
-    wsRef.current.onopen = () => {
-      console.log('WebSocket connection established')
-    }
-
-    wsRef.current.onmessage = (evt) => {
+  const onMessageReceived = useCallback(
+    (evtData: string) => {
       if (selectedContact) {
-        const data = JSON.parse(evt.data.toString())
+        const data = JSON.parse(evtData)
         if (data.type === 'message') {
           setSelectedContact({
             ...selectedContact,
@@ -246,12 +240,27 @@ export default function HomePage() {
           })
         }
       }
+    },
+    [selectedContact]
+  )
+
+  useEffect(() => {
+    wsRef.current = new WebSocket('ws://localhost:3000')
+
+    wsRef.current.onopen = () => {
+      console.log('WebSocket connection established')
     }
+
+    wsRef.current.onmessage = (evt) => onMessageReceived(evt.data.toString())
 
     wsRef.current.onclose = () => {
       console.log('WebSocket connection closed')
     }
-  }, [selectedContact, message])
+
+    return () => {
+      wsRef.current?.close()
+    }
+  }, [onMessageReceived])
 
   useEffect(() => {
     if (chatEndRef.current) {
