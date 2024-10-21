@@ -3,7 +3,7 @@ import { hash, verify } from '@node-rs/argon2'
 import { Hono } from 'hono'
 import { generateId } from 'lucia'
 
-import { createUser, getUserByEmail } from '../data-access/user'
+import { createUser, getUserByEmail } from '../data/user'
 import { lucia } from '../lib/auth'
 import { loginSchema, registerSchema } from '../lib/validators/authValidators'
 

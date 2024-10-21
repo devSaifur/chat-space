@@ -1,7 +1,7 @@
 import type { Context } from 'hono'
 import type { WSContext, WSEvents } from 'hono/ws'
 
-import { pub, sub } from './redis'
+import { handleRedisMessagePublishing } from '../features/chat'
 
 type WSMessage = {
     type: 'message'
@@ -10,28 +10,19 @@ type WSMessage = {
 
 const activeConnections = new Set<WSContext>()
 
-function broadcastMessage(data: string) {
+export function broadcastMessage(data: string) {
     for (const ws of activeConnections) {
         ws.send(data)
     }
 }
 
-export const wsHandler = (c: Context): WSEvents | Promise<WSEvents> => ({
+export const wsHandler = (c: Context): WSEvents => ({
     onOpen: (evt, ws) => {
         console.log('WebSocket connection opened')
         activeConnections.add(ws)
-
-        sub.subscribe('MESSAGE')
-
-        sub.on('message', (channel, message) => {
-            if (channel === 'MESSAGE') {
-                console.log('message received from redis: ', message)
-                broadcastMessage(message)
-            }
-        })
     },
 
-    onMessage: async (msg, ws) => {
+    onMessage: (msg, ws) => {
         const { type, data } = JSON.parse(msg.data.toString()) as WSMessage
         console.log(data)
 
@@ -40,7 +31,8 @@ export const wsHandler = (c: Context): WSEvents | Promise<WSEvents> => ({
         if (isConnectd) {
             if (type === 'message' && data) {
                 const message = JSON.stringify({ type: 'message', data })
-                await pub.publish('MESSAGE', message)
+                // handleRedisMessagePublishing(message)
+                broadcastMessage(message)
             }
         }
     },
