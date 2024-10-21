@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import {
   ChevronLeft,
   MoreVertical,
@@ -7,262 +8,59 @@ import {
   Send
 } from 'lucide-react'
 
+import { api } from '@/lib/api'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
-type Message = {
-  id: number
-  sender: 'user' | 'contact'
-  content: string
-  time: string
-}
-
 type Contact = {
   id: number
   name: string
+  username: string
   avatar: string
   lastMessage: string
   time: string
-  messages: Message[]
 }
 
-const contacts: Contact[] = [
-  {
-    id: 1,
-    name: 'Alice Johnson',
-    avatar: '/placeholder.svg?height=40&width=40',
-    lastMessage: 'Hey, how are you?',
-    time: '10:30 AM',
-    messages: [
-      {
-        id: 1,
-        sender: 'contact',
-        content: 'Hey, how are you?',
-        time: '10:30 AM'
-      },
-      {
-        id: 2,
-        sender: 'user',
-        content: "I'm good, thanks! How about you?'",
-        time: '10:31 AM'
-      },
-      {
-        id: 3,
-        sender: 'contact',
-        content: 'Doing well! Any plans for the weekend?',
-        time: '10:32 AM'
-      }
-    ]
-  },
-  {
-    id: 2,
-    name: 'Bob Smith',
-    avatar: '/placeholder.svg?height=40&width=40',
-    lastMessage: 'Can we meet tomorrow?',
-    time: 'Yesterday',
-    messages: [
-      {
-        id: 1,
-        sender: 'contact',
-        content: 'Can we meet tomorrow?',
-        time: 'Yesterday'
-      },
-      {
-        id: 2,
-        sender: 'user',
-        content: 'Sure, what time works for you?',
-        time: 'Yesterday'
-      }
-    ]
-  },
-  {
-    id: 3,
-    name: 'Carol Williams',
-    avatar: '/placeholder.svg?height=40&width=40',
-    lastMessage: 'Thanks for your help!',
-    time: 'Tuesday',
-    messages: [
-      {
-        id: 1,
-        sender: 'user',
-        content: "How's the project coming along?",
-        time: 'Tuesday'
-      },
-      {
-        id: 2,
-        sender: 'contact',
-        content: "It's going well. Thanks for your help!",
-        time: 'Tuesday'
-      }
-    ]
-  },
-  {
-    id: 4,
-    name: 'David Brown',
-    avatar: '/placeholder.svg?height=40&width=40',
-    lastMessage: 'See you at the meeting',
-    time: 'Monday',
-    messages: [
-      {
-        id: 1,
-        sender: 'contact',
-        content: "Don't forget about our team meeting tomorrow",
-        time: 'Monday'
-      },
-      {
-        id: 2,
-        sender: 'user',
-        content: 'Thanks for the reminder. See you at the meeting!',
-        time: 'Monday'
-      }
-    ]
-  },
-  {
-    id: 5,
-    name: 'Eva Martinez',
-    avatar: '/placeholder.svg?height=40&width=40',
-    lastMessage: 'How was your vacation?',
-    time: 'Last week',
-    messages: [
-      {
-        id: 1,
-        sender: 'contact',
-        content: "Hey! You're back! How was your vacation?",
-        time: 'Last week'
-      },
-      {
-        id: 2,
-        sender: 'user',
-        content: "It was amazing! I'll show you some photos soon.",
-        time: 'Last week'
-      }
-    ]
-  },
-  {
-    id: 6,
-    name: 'Frank Wilson',
-    avatar: '/placeholder.svg?height=40&width=40',
-    lastMessage: 'Project update',
-    time: '2 weeks ago',
-    messages: [
-      {
-        id: 1,
-        sender: 'contact',
-        content: "I've sent you the latest project update",
-        time: '2 weeks ago'
-      },
-      {
-        id: 2,
-        sender: 'user',
-        content: "Got it, I'll review it asap",
-        time: '2 weeks ago'
-      }
-    ]
-  },
-  {
-    id: 7,
-    name: 'Grace Lee',
-    avatar: '/placeholder.svg?height=40&width=40',
-    lastMessage: 'Happy birthday!',
-    time: 'Last month',
-    messages: [
-      {
-        id: 1,
-        sender: 'contact',
-        content: 'Happy birthday! Hope you have a great day!',
-        time: 'Last month'
-      },
-      {
-        id: 2,
-        sender: 'user',
-        content: 'Thank you so much!',
-        time: 'Last month'
-      }
-    ]
-  }
-]
-
 export default function HomePage() {
-  const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
-  const wsRef = useRef<WebSocket | null>(null)
+  // const wsRef = useRef<WebSocket | null>(null)
   const [message, setMessage] = useState('')
   const chatEndRef = useRef<HTMLDivElement>(null)
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (message.trim() && selectedContact) {
-      const newMessage: Message = {
-        id: selectedContact.messages.length + 1,
-        sender: 'user',
-        content: message,
-        time: new Date().toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit'
-        })
+  const { data: contacts } = useQuery({
+    queryKey: ['contacts'],
+    queryFn: async () => {
+      const res = await api.contact.$get()
+      if (res.status !== 200) {
+        throw new Error(res.statusText)
       }
-      setSelectedContact({
-        ...selectedContact,
-        messages: [...selectedContact.messages, newMessage],
-        lastMessage: message,
-        time: 'Just now'
-      })
-      setMessage('')
-      wsRef.current?.send(JSON.stringify({ type: 'message', data: message }))
+      return res.json()
     }
+  })
+
+  if (!selectedContact && contacts && contacts.length > 0) {
+    setSelectedContact(contacts[0])
   }
 
-  const onMessageReceived = useCallback(
-    (evtData: string) => {
-      if (selectedContact) {
-        const data = JSON.parse(evtData)
-        if (data.type === 'message') {
-          setSelectedContact({
-            ...selectedContact,
-            lastMessage: data.data,
-            time: new Date().toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit'
-            }),
-            messages: [
-              ...selectedContact.messages,
-              {
-                id: selectedContact.messages.length + 1,
-                sender: 'user',
-                content: data.data,
-                time: new Date().toLocaleTimeString([], {
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })
-              }
-            ]
-          })
-        }
+  const username = selectedContact?.username as string
+
+  const { data: messagesQueryResult } = useQuery({
+    queryKey: ['messages', username],
+    queryFn: async () => {
+      const res = await api.messages[':username'].$get({
+        param: { username }
+      })
+      if (res.status !== 200) {
+        throw new Error(res.statusText)
       }
+      return res.json()
     },
-    [selectedContact]
-  )
+    enabled: !!username
+  })
 
-  useEffect(() => {
-    wsRef.current = new WebSocket('ws://localhost:3000')
-
-    wsRef.current.onopen = () => {
-      console.log('WebSocket connection established')
-    }
-
-    wsRef.current.onmessage = (evt) => onMessageReceived(evt.data.toString())
-
-    wsRef.current.onclose = () => {
-      console.log('WebSocket connection closed')
-    }
-  }, [onMessageReceived])
-
-  useEffect(() => {
-    if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior: 'smooth' })
-    }
-  }, [selectedContact?.messages])
+  const messages = messagesQueryResult ? messagesQueryResult : []
 
   return (
     <div className="mx-auto flex h-screen max-w-7xl overflow-hidden">
@@ -291,7 +89,7 @@ export default function HomePage() {
           <Input placeholder="Search or start new chat" />
         </div>
         <ScrollArea className="h-[calc(100vh-120px)]">
-          {contacts.map((contact) => (
+          {contacts?.map((contact) => (
             <div
               key={contact.id}
               className="flex cursor-pointer items-center p-3"
@@ -349,7 +147,7 @@ export default function HomePage() {
               </Button>
             </div>
             <ScrollArea className="flex-1 bg-[url('/placeholder.svg?height=600&width=800')] bg-repeat p-4">
-              {selectedContact.messages.map((msg) => (
+              {messages.map((msg) => (
                 <div
                   key={msg.id}
                   className={`mb-4 flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -369,7 +167,7 @@ export default function HomePage() {
               <div ref={chatEndRef} />
             </ScrollArea>
             <form
-              onSubmit={handleSendMessage}
+              // onSubmit={handleSendMessage}
               className="flex items-center p-4"
             >
               <Button variant="ghost" size="icon">

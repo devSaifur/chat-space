@@ -4,16 +4,7 @@
     "singleQuote": true,
     "trailingComma": "none",
     "semi": false,
-    "importOrder": [
-        "<THIRD_PARTY_MODULES>",
-        "",
-        "^types$",
-        "^@/types/(.*)$",
-        "^@/config/(.*)$",
-        "^@/lib/(.*)$",
-        "",
-        "^[./]"
-    ],
+    "importOrder": ["<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "", "^[./]"],
     "importOrderSeparation": false,
     "importOrderSortSpecifiers": true,
     "importOrderBuiltinModulesToTop": true,

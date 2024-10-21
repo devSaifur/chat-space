@@ -19,7 +19,7 @@ importers:
         version: 0.4.0(hono@4.6.5)(valibot@1.0.0-beta.1(typescript@5.6.3))
       '@lucia-auth/adapter-drizzle':
         specifier: ^1.1.0
-        version: 1.1.0(drizzle-orm@0.35.2(bun-types@1.1.30)(postgres@3.4.4))(lucia@3.2.1)
+        version: 1.1.0(drizzle-orm@0.35.2(bun-types@1.1.30)(postgres@3.4.4))(lucia@3.2.2)
       '@node-rs/argon2':
         specifier: ^2.0.0
         version: 2.0.0
@@ -36,8 +36,8 @@ importers:
         specifier: ^2.2.4
         version: 2.2.4
       lucia:
-        specifier: ^3.2.1
-        version: 3.2.1
+        specifier: ^3.2.2
+        version: 3.2.2
       postgres:
         specifier: ^3.4.4
         version: 3.4.4
@@ -1352,8 +1352,8 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
-  lucia@3.2.1:
-    resolution: {integrity: sha512-yIVBS/wU3R+8cLClh2ksBNxqHkAd0VUcjvib53azkSdRT1cPkKuFglkxFsghuspaioX+AHhmIECEkdOz/vIJsQ==}
+  lucia@3.2.2:
+    resolution: {integrity: sha512-P1FlFBGCMPMXu+EGdVD9W4Mjm0DqsusmKgO7Xc33mI5X1bklmsQb0hfzPhXomQr9waWIBDsiOjvr1e6BTaUqpA==}
 
   merge2@1.4.1:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
@@ -2134,10 +2134,10 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@lucia-auth/adapter-drizzle@1.1.0(drizzle-orm@0.35.2(bun-types@1.1.30)(postgres@3.4.4))(lucia@3.2.1)':
+  '@lucia-auth/adapter-drizzle@1.1.0(drizzle-orm@0.35.2(bun-types@1.1.30)(postgres@3.4.4))(lucia@3.2.2)':
     dependencies:
       drizzle-orm: 0.35.2(bun-types@1.1.30)(postgres@3.4.4)
-      lucia: 3.2.1
+      lucia: 3.2.2
 
   '@napi-rs/wasm-runtime@0.2.5':
     dependencies:
@@ -2779,7 +2779,7 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  lucia@3.2.1:
+  lucia@3.2.2:
     dependencies:
       '@oslojs/crypto': 1.0.1
       '@oslojs/encoding': 1.1.0
