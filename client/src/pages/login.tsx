@@ -1,7 +1,7 @@
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { LoginSchema, loginSchema } from '@server/lib/validators/authValidators'
 import { useForm } from 'react-hook-form'
-import { Link } from 'wouter'
+import { Link, useLocation } from 'wouter'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -18,6 +18,8 @@ export const description =
   "A login form with email and password. There's an option to login with Google and a link to sign up if you don't have an account."
 
 export default function LoginPage() {
+  const [_, navigate] = useLocation()
+
   const { register, formState, handleSubmit } = useForm<LoginSchema>({
     resolver: valibotResolver(loginSchema),
     defaultValues: {

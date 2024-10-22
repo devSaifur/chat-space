@@ -44,6 +44,9 @@ importers:
       react-hook-form:
         specifier: ^7.53.1
         version: 7.53.1(react@18.3.1)
+      sonner:
+        specifier: ^1.5.0
+        version: 1.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       tailwind-merge:
         specifier: ^2.5.4
         version: 2.5.4
@@ -71,7 +74,7 @@ importers:
         version: 18.3.1
       '@vitejs/plugin-react-swc':
         specifier: ^3.7.1
-        version: 3.7.1(vite@5.4.9)
+        version: 3.7.1(@swc/helpers@0.5.13)(vite@5.4.9)
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.47)
@@ -619,6 +622,9 @@ packages:
 
   '@swc/counter@0.1.3':
     resolution: {integrity: sha512-e2BR4lsJkkRlKZ/qCHPw9ZaSxc0MVUd7gtbtaB7aMvHeJVYe8sOB8DBZkP2DtISHGSku9sCK6T6cnY0CtXrOCQ==}
+
+  '@swc/helpers@0.5.13':
+    resolution: {integrity: sha512-UoKGxQ3r5kYI9dALKJapMmuK+1zWM/H17Z1+iwnNmzcJRnfFuevZs375TA5rW31pu4BS4NoSy1fRsexDXfWn5w==}
 
   '@swc/types@0.1.13':
     resolution: {integrity: sha512-JL7eeCk6zWCbiYQg2xQSdLXQJl8Qoc9rXmG2cEKvHe3CKwMHwHGpfOb8frzNLmbycOo6I51qxnLnn9ESf4I20Q==}
@@ -1407,6 +1413,12 @@ packages:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
 
+  sonner@1.5.0:
+    resolution: {integrity: sha512-FBjhG/gnnbN6FY0jaNnqZOMmB73R+5IiyYAw8yBj7L54ER7HB3fOSE5OFiQiE2iXWxeXKvg6fIP4LtVppHEdJA==}
+    peerDependencies:
+      react: ^18.0.0
+      react-dom: ^18.0.0
+
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
@@ -1479,6 +1491,9 @@ packages:
 
   ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
+
+  tslib@2.8.0:
+    resolution: {integrity: sha512-jWVzBLplnCmoaTr13V9dYbiQ99wvZRd0vNWaDRg+aVYRcjDF3nDksxFDE/+fkXnKhpnUUkmx5pK/v8mCtLVqZA==}
 
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
@@ -1921,7 +1936,7 @@ snapshots:
   '@swc/core-win32-x64-msvc@1.7.36':
     optional: true
 
-  '@swc/core@1.7.36':
+  '@swc/core@1.7.36(@swc/helpers@0.5.13)':
     dependencies:
       '@swc/counter': 0.1.3
       '@swc/types': 0.1.13
@@ -1936,8 +1951,14 @@ snapshots:
       '@swc/core-win32-arm64-msvc': 1.7.36
       '@swc/core-win32-ia32-msvc': 1.7.36
       '@swc/core-win32-x64-msvc': 1.7.36
+      '@swc/helpers': 0.5.13
 
   '@swc/counter@0.1.3': {}
+
+  '@swc/helpers@0.5.13':
+    dependencies:
+      tslib: 2.8.0
+    optional: true
 
   '@swc/types@0.1.13':
     dependencies:
@@ -2062,9 +2083,9 @@ snapshots:
       '@typescript-eslint/types': 8.10.0
       eslint-visitor-keys: 3.4.3
 
-  '@vitejs/plugin-react-swc@3.7.1(vite@5.4.9)':
+  '@vitejs/plugin-react-swc@3.7.1(@swc/helpers@0.5.13)(vite@5.4.9)':
     dependencies:
-      '@swc/core': 1.7.36
+      '@swc/core': 1.7.36(@swc/helpers@0.5.13)
       vite: 5.4.9
     transitivePeerDependencies:
       - '@swc/helpers'
@@ -2678,6 +2699,11 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
+  sonner@1.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
   source-map-js@1.2.1: {}
 
   string-width@4.2.3:
@@ -2770,6 +2796,9 @@ snapshots:
       typescript: 5.6.3
 
   ts-interface-checker@0.1.13: {}
+
+  tslib@2.8.0:
+    optional: true
 
   type-check@0.4.0:
     dependencies:

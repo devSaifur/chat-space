@@ -1,55 +1,45 @@
 import type { Context, Next } from 'hono'
 import { getCookie } from 'hono/cookie'
 import { createMiddleware } from 'hono/factory'
-import type { User } from 'lucia'
 
-import { lucia } from './lib/auth'
+import type { User } from './lib/pg/schema'
+import { deleteSessionTokenCookie, setSessionTokenCookie, validateSessionToken } from './utils/auth'
 
 export async function authMiddleware(c: Context, next: Next) {
-    const sessionId = getCookie(c, lucia.sessionCookieName) ?? null
-    if (!sessionId) {
+    const token = getCookie(c, 'session') ?? null
+
+    if (!token) {
         c.set('user', null)
         c.set('session', null)
-        return await next()
+        return next()
     }
 
-    const { session, user } = await lucia.validateSession(sessionId)
-    if (session && session.fresh) {
-        c.header('Set-Cookie', lucia.createSessionCookie(session.id).serialize(), {
-            append: true
-        })
-    }
-    if (!session) {
-        c.header('Set-Cookie', lucia.createBlankSessionCookie().serialize(), {
-            append: true
-        })
+    const { session, user } = await validateSessionToken(token)
+
+    if (session) {
+        setSessionTokenCookie(c, token, session.expiresAt)
+    } else {
+        deleteSessionTokenCookie(c)
     }
 
     c.set('user', user)
     c.set('session', session)
-    await next()
+    return next()
 }
 
-type Env = {
+type ENV = {
     Variables: {
-        user: User
+        user: Pick<User, 'username' | 'id'>
     }
 }
 
-export const getUser = createMiddleware<Env>(async (c, next) => {
-    const sessionId = getCookie(c, lucia.sessionCookieName) ?? null
-    if (!sessionId) {
-        return c.json({ error: 'Unauthorized' }, 401)
+export const getUser = createMiddleware<ENV>(async (c, next) => {
+    const user = c.get('user')
+
+    if (!user) {
+        return c.json({ status: 401, message: 'Unauthorized' })
     }
-    const { session, user } = await lucia.validateSession(sessionId)
-    if (session && session.fresh) {
-        c.header('Set-Cookie', lucia.createSessionCookie(session.id).serialize(), {
-            append: true
-        })
-    }
-    if (!session) {
-        return c.json({ error: 'Unauthorized' }, 401)
-    }
+
     c.set('user', user)
-    await next()
+    return next()
 })

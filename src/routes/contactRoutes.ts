@@ -1,5 +1,7 @@
 import { Hono } from 'hono'
 
+import type { Env } from '../types/context'
+
 type Message = {
     id: number
     sender: 'user' | 'contact'
@@ -180,7 +182,9 @@ export const contacts: Contact[] = [
     }
 ]
 
-export const contactsRoutes = new Hono().get('/', (c) => {
+export const contactsRoutes = new Hono<Env>().get('/', (c) => {
+    const user = c.get('user')
+
     const contactWithLastMessage = contacts.map((contact) => {
         const { messages, ...rest } = contact
         return rest
