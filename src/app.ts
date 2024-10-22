@@ -5,6 +5,7 @@ import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 
 import { handleRedisMessageSubscription } from './features/chat'
+import { apiRatelimit } from './lib/rate-limit'
 import { wsHandler } from './lib/ws'
 import { authMiddleware } from './middleware'
 import { authRoutes } from './routes/authRoutes'
@@ -21,6 +22,7 @@ app.use(logger())
 app.use(cors({ origin: '*' })) // TODO: Remove this on production
 
 app.use('*', authMiddleware)
+app.use('*', apiRatelimit)
 
 const apiServer = app
     .basePath('/api')
