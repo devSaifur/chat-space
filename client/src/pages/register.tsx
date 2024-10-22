@@ -3,9 +3,12 @@ import {
   registerSchema,
   RegisterSchema
 } from '@server/lib/validators/authValidators'
+import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
-import { Link } from 'wouter'
+import { toast } from 'sonner'
+import { Link, useLocation } from 'wouter'
 
+import { api } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -21,6 +24,8 @@ export const description =
   "A sign up form with first name, last name, email and password inside a card. There's an option to sign up with GitHub and a link to login if you already have an account"
 
 export default function RegisterPage() {
+  const [_, navigate] = useLocation()
+
   const { register, formState, handleSubmit } = useForm<RegisterSchema>({
     resolver: valibotResolver(registerSchema),
     defaultValues: {
@@ -33,9 +38,16 @@ export default function RegisterPage() {
 
   const { errors } = formState
 
-  function onSubmit(data: RegisterSchema) {
-    console.log(data)
-  }
+  const { mutate: signUp, isPending } = useMutation({
+    mutationFn: async (data: RegisterSchema) =>
+      await api.auth.register.$post({ json: data }),
+    onSuccess: () => {
+      navigate('/', { replace: true })
+    },
+    onError: () => {
+      toast.error('Something went wrong, please try again')
+    }
+  })
 
   return (
     <Card className="mx-auto mt-40 max-w-sm">
@@ -46,7 +58,7 @@ export default function RegisterPage() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit((data) => signUp(data))}>
           <div className="grid gap-8">
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
@@ -78,7 +90,7 @@ export default function RegisterPage() {
                 <p className="text-red-500">{errors.password.message}</p>
               )}
             </div>
-            <Button type="submit" className="w-full">
+            <Button type="submit" disabled={isPending} className="w-full">
               Create an account
             </Button>
           </div>

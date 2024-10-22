@@ -1,8 +1,11 @@
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { LoginSchema, loginSchema } from '@server/lib/validators/authValidators'
+import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { Link, useLocation } from 'wouter'
 
+import { api } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -30,9 +33,16 @@ export default function LoginPage() {
 
   const { errors } = formState
 
-  function onSubmit(data: LoginSchema) {
-    console.log(data)
-  }
+  const { mutate: login, isPending } = useMutation({
+    mutationFn: async (data: LoginSchema) =>
+      api.auth.login.$post({ json: data }),
+    onSuccess: () => {
+      navigate('/', { replace: true })
+    },
+    onError: () => {
+      toast.error('Something went wrong, please try again')
+    }
+  })
 
   return (
     <Card className="mx-auto mt-40 max-w-sm">
@@ -43,7 +53,7 @@ export default function LoginPage() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit((data) => login(data))}>
           <div className="grid gap-8">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
@@ -75,7 +85,7 @@ export default function LoginPage() {
                 <p className="text-red-500">{errors.password.message}</p>
               )}
             </div>
-            <Button type="submit" className="w-full">
+            <Button type="submit" disabled={isPending} className="w-full">
               Login
             </Button>
           </div>

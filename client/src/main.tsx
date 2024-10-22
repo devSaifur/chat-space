@@ -13,7 +13,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Providers>
       <App />
-      <Toaster />
+      <Toaster richColors />
     </Providers>
   </StrictMode>
 )
