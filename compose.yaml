@@ -1,30 +1,29 @@
-version: '3.9'
+version: "3.9"
 services:
-    db:
-        image: postgres:17-alpine
-        restart: always
-        ports:
-            - 5432:5432
-        environment:
-            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-            - POSTGRES_DB=chat-space
-        env_file:
-            - .env
+  db:
+    image: postgres:17-alpine
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=chat-space
+    env_file:
+      - .env
 
-    redis:
-        image: 'redis:latest'
-        restart: always
-        environment:
-            - redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
-        ports:
-            - '6379:6379'
-        volumes:
-            - redis-data:/data
-        env_file:
-            - .env
+  redis:
+    image: "redis:latest"
+    restart: always
+    environment:
+      - redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
 
 volumes:
-    postgres-data:
-        driver: local
-    redis-data:
-        driver: local
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local

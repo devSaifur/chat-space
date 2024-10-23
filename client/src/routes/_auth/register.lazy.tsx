@@ -4,7 +4,7 @@ import {
   RegisterSchema
 } from '@server/lib/validators/authValidators'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
+import { createLazyFileRoute, Link } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -20,10 +20,14 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
+export const Route = createLazyFileRoute('/_auth/register')({
+  component: RegisterPage
+})
+
 export const description =
   "A sign up form with first name, last name, email and password inside a card. There's an option to sign up with GitHub and a link to login if you already have an account"
 
-export default function RegisterPage() {
+function RegisterPage() {
   const queryClient = useQueryClient()
 
   const { register, formState, handleSubmit } = useForm<RegisterSchema>({
@@ -97,7 +101,7 @@ export default function RegisterPage() {
         </form>
         <div className="mt-4 text-center text-sm">
           Already have an account?{' '}
-          <Link href="/login" className="underline">
+          <Link to="/login" className="underline">
             Sign in
           </Link>
         </div>

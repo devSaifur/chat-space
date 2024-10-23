@@ -16,7 +16,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 function Root() {
   return (
     <>
-      <div>hello</div>
       <Outlet />
       <Toaster richColors />
       <ReactQueryDevtools initialIsOpen={false} />

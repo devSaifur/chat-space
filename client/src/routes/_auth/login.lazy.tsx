@@ -1,7 +1,7 @@
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { LoginSchema, loginSchema } from '@server/lib/validators/authValidators'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
+import { createLazyFileRoute, Link } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -17,10 +17,14 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
+export const Route = createLazyFileRoute('/_auth/login')({
+  component: LoginPage
+})
+
 export const description =
   "A login form with email and password. There's an option to login with Google and a link to sign up if you don't have an account."
 
-export default function LoginPage() {
+function LoginPage() {
   const queryClient = useQueryClient()
 
   const { register, formState, handleSubmit } = useForm<LoginSchema>({
@@ -92,7 +96,7 @@ export default function LoginPage() {
         </form>
         <div className="mt-8 text-center text-sm">
           Don&apos;t have an account?{' '}
-          <Link href="/register" className="underline">
+          <Link to="/register" className="underline">
             Sign up
           </Link>
         </div>

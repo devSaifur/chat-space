@@ -6,10 +6,10 @@ export const userQueryOption = queryOptions({
   queryKey: ['user'],
   queryFn: async () => {
     const res = await api.auth.me.$get()
-    const user = await res.json()
-    if (!user) {
+    if (!res.ok) {
       return null
     }
+    const user = await res.json()
     return user
   },
   staleTime: Infinity

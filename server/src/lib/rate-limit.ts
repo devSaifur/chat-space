@@ -1,14 +1,10 @@
 // @ts-nocheck
-
 import { rateLimiter, webSocketLimiter } from 'hono-rate-limiter'
-import Redis from 'ioredis'
 import { RedisStore } from 'rate-limit-redis'
 
-const client = new Redis(6379, '127.0.0.1', {
-    password: process.env.REDIS_PASSWORD
-})
+import { redisClient } from './redis'
 
-const sendCommand = (...args) => client.call(...args)
+const sendCommand = (...args) => redisClient.call(...args)
 
 export const apiRatelimit = rateLimiter({
     windowMs: 15 * 60 * 1000, // 15 minutes

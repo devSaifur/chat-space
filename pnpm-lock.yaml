@@ -11,6 +11,9 @@ importers:
       hono:
         specifier: ^4.6.6
         version: 4.6.6
+      valibot:
+        specifier: 1.0.0-beta.1
+        version: 1.0.0-beta.1
     devDependencies:
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.3.1
@@ -382,6 +385,14 @@ packages:
     peerDependencies:
       browserslist: '>= 4.21.0'
 
+  valibot@1.0.0-beta.1:
+    resolution: {integrity: sha512-lQGnVdicMX/G+gicL2aYZcqhn5brXmjx6UvB5wfPcoM0IOk8tzbrP/TQc6hSs156fTeklVd07+fnlirRgT2Tig==}
+    peerDependencies:
+      typescript: '>=5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   wrap-ansi@7.0.0:
     resolution: {integrity: sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==}
     engines: {node: '>=10'}
@@ -709,6 +720,8 @@ snapshots:
       browserslist: 4.24.2
       escalade: 3.2.0
       picocolors: 1.1.1
+
+  valibot@1.0.0-beta.1: {}
 
   wrap-ansi@7.0.0:
     dependencies:
