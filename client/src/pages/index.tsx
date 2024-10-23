@@ -117,7 +117,7 @@ export default function HomePage() {
       <div
         className={`flex w-full flex-col md:w-2/3 ${!selectedContact ? 'hidden md:flex' : ''}`}
       >
-        {selectedContact ? (
+        {selectedContact && (
           <>
             <div className="items-center0 flex p-4">
               <Button
@@ -184,10 +184,6 @@ export default function HomePage() {
               </Button>
             </form>
           </>
-        ) : (
-          <div className="flex flex-1 items-center justify-center">
-            <p className="text-gray-500">Select a chat to start messaging</p>
-          </div>
         )}
       </div>
     </div>

@@ -3,10 +3,10 @@ import {
   registerSchema,
   RegisterSchema
 } from '@server/lib/validators/authValidators'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { Link, useLocation } from 'wouter'
 
 import { api } from '@/lib/api'
 import { Button } from '@/components/ui/button'
@@ -24,7 +24,7 @@ export const description =
   "A sign up form with first name, last name, email and password inside a card. There's an option to sign up with GitHub and a link to login if you already have an account"
 
 export default function RegisterPage() {
-  const [_, navigate] = useLocation()
+  const queryClient = useQueryClient()
 
   const { register, formState, handleSubmit } = useForm<RegisterSchema>({
     resolver: valibotResolver(registerSchema),
@@ -42,7 +42,7 @@ export default function RegisterPage() {
     mutationFn: async (data: RegisterSchema) =>
       await api.auth.register.$post({ json: data }),
     onSuccess: () => {
-      navigate('/', { replace: true })
+      queryClient.invalidateQueries({ queryKey: ['user'] })
     },
     onError: () => {
       toast.error('Something went wrong, please try again')
