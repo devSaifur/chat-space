@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm'
 
 import { db } from '../lib/pg'
-import { users, type User } from '../lib/pg/schema'
+import { users, type UserInsert } from '../lib/pg/schema'
 
 export async function getUserByEmail(email: string) {
     return await db.query.users.findFirst({
@@ -9,6 +9,6 @@ export async function getUserByEmail(email: string) {
     })
 }
 
-export async function createUser(user: User) {
+export async function createUser(user: UserInsert) {
     await db.insert(users).values(user)
 }

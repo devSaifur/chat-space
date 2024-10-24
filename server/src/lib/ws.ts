@@ -2,6 +2,7 @@ import type { Context } from 'hono'
 import type { WSContext, WSEvents } from 'hono/ws'
 
 import { handleRedisMessagePublishing } from '../features/chat'
+import type { Env } from '../types'
 
 type WSMessage = {
     type: 'message'
@@ -16,10 +17,12 @@ export function broadcastMessage(data: string) {
     }
 }
 
-export const wsHandler = (c: Context): WSEvents => ({
+export const wsHandler = (c: Context<Env>): WSEvents => ({
     onOpen: (evt, ws) => {
         console.log('WebSocket connection opened')
         activeConnections.add(ws)
+        const user = c.get('user')
+        console.log({ user })
     },
 
     onMessage: (msg, ws) => {

@@ -4,7 +4,7 @@ import {
   RegisterSchema
 } from '@server/lib/validators/authValidators'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { createLazyFileRoute, Link } from '@tanstack/react-router'
+import { createLazyFileRoute, Link, useRouter } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -28,6 +28,7 @@ export const description =
   "A sign up form with first name, last name, email and password inside a card. There's an option to sign up with GitHub and a link to login if you already have an account"
 
 function RegisterPage() {
+  const router = useRouter()
   const queryClient = useQueryClient()
 
   const { register, formState, handleSubmit } = useForm<RegisterSchema>({
@@ -46,7 +47,8 @@ function RegisterPage() {
     mutationFn: async (data: RegisterSchema) =>
       await api.auth.register.$post({ json: data }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'] })
+      queryClient.invalidateQueries({ queryKey: ['user'], type: 'all' })
+      router.invalidate()
     },
     onError: () => {
       toast.error('Something went wrong, please try again')

@@ -29,9 +29,10 @@ export const authRoutes = new Hono()
             const session = await createSession(sessionToken, user.id)
             setSessionTokenCookie(c, sessionToken, session.expiresAt)
 
-            return c.json({ message: 'Login successful' }, 204)
+            return c.body('Login successful', 201)
         } catch (err) {
-            return c.json({ message: 'Internal server error' }, 500)
+            console.error(err)
+            return c.body('Internal server error', 500)
         }
     })
     .post('/register', vValidator('json', registerSchema), async (c) => {
@@ -52,9 +53,10 @@ export const authRoutes = new Hono()
             const session = await createSession(sessionToken, userId)
             setSessionTokenCookie(c, sessionToken, session.expiresAt)
 
-            return c.json({ message: 'Register successful' }, 204)
+            return c.body('Register successful', 201)
         } catch (err) {
-            return c.json({ message: 'Internal server error' }, 500)
+            console.error(err)
+            return c.body('Internal server error', 500)
         }
     })
     .get('/me', getUser, (c) => {

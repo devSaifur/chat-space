@@ -1,5 +1,6 @@
 import { sha256 } from '@oslojs/crypto/sha2'
-import { encodeBase32LowerCaseNoPadding, encodeHexLowerCase } from '@oslojs/encoding'
+import { encodeHexLowerCase } from '@oslojs/encoding'
+import { createId } from '@paralleldrive/cuid2'
 import { eq } from 'drizzle-orm'
 import type { Context } from 'hono'
 import { deleteCookie, setCookie } from 'hono/cookie'
@@ -10,10 +11,7 @@ import { sessions, users } from '../lib/pg/schema'
 import type { NarrowedUser } from '../types'
 
 export function generateSessionToken(): string {
-    const bytes = new Uint8Array()
-    crypto.getRandomValues(bytes)
-    const token = encodeBase32LowerCaseNoPadding(bytes)
-    return token
+    return createId()
 }
 
 export async function createSession(token: string, userId: string): Promise<Session> {

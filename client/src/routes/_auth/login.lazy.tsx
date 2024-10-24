@@ -1,7 +1,7 @@
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { LoginSchema, loginSchema } from '@server/lib/validators/authValidators'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { createLazyFileRoute, Link } from '@tanstack/react-router'
+import { createLazyFileRoute, Link, useRouter } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -25,6 +25,7 @@ export const description =
   "A login form with email and password. There's an option to login with Google and a link to sign up if you don't have an account."
 
 function LoginPage() {
+  const router = useRouter()
   const queryClient = useQueryClient()
 
   const { register, formState, handleSubmit } = useForm<LoginSchema>({
@@ -41,7 +42,8 @@ function LoginPage() {
     mutationFn: async (data: LoginSchema) =>
       api.auth.login.$post({ json: data }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'] })
+      queryClient.invalidateQueries({ queryKey: ['user'], type: 'all' })
+      router.invalidate()
     },
     onError: () => {
       toast.error('Something went wrong, please try again')

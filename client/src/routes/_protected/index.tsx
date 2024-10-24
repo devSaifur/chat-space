@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import {
@@ -20,7 +20,7 @@ export const Route = createFileRoute('/_protected/')({
   component: HomePage,
   loader: async () => {
     const res = await api.contact.$get()
-    if (res.status !== 200) {
+    if (!res.ok) {
       return null
     }
     return res.json()
@@ -38,7 +38,6 @@ type Contact = {
 }
 
 function HomePage() {
-  // const wsRef = useRef<WebSocket | null>(null)
   const [message, setMessage] = useState('')
   const chatEndRef = useRef<HTMLDivElement>(null)
   const contacts = Route.useLoaderData()
@@ -66,6 +65,14 @@ function HomePage() {
   })
 
   const messages = messagesQueryResult ? messagesQueryResult : []
+
+  useEffect(() => {
+    const ws = new WebSocket('ws://localhost:3000')
+
+    ws.onopen = () => {
+      console.log('WebSocket connection opened')
+    }
+  }, [])
 
   return (
     <div className="mx-auto flex h-screen max-w-7xl overflow-hidden">
