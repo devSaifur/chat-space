@@ -67,7 +67,7 @@ function HomePage() {
   const messages = messagesQueryResult ? messagesQueryResult : []
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:3000')
+    const ws = new WebSocket('ws://localhost:3000/api')
 
     ws.onopen = () => {
       console.log('WebSocket connection opened')

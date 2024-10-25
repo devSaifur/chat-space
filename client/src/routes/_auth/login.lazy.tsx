@@ -1,4 +1,4 @@
-import { valibotResolver } from '@hookform/resolvers/valibot'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { LoginSchema, loginSchema } from '@server/lib/validators/authValidators'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createLazyFileRoute, Link, useRouter } from '@tanstack/react-router'
@@ -29,7 +29,7 @@ function LoginPage() {
   const queryClient = useQueryClient()
 
   const { register, formState, handleSubmit } = useForm<LoginSchema>({
-    resolver: valibotResolver(loginSchema),
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
       password: ''

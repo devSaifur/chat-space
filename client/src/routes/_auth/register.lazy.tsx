@@ -1,4 +1,4 @@
-import { valibotResolver } from '@hookform/resolvers/valibot'
+import { zodResolver } from '@hookform/resolvers/zod'
 import {
   registerSchema,
   RegisterSchema
@@ -32,7 +32,7 @@ function RegisterPage() {
   const queryClient = useQueryClient()
 
   const { register, formState, handleSubmit } = useForm<RegisterSchema>({
-    resolver: valibotResolver(registerSchema),
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       name: '',
       username: '',

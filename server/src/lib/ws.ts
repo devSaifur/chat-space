@@ -3,13 +3,13 @@ import type { WSContext, WSEvents } from 'hono/ws'
 
 import { handleRedisMessagePublishing } from '../features/chat'
 import type { Env } from '../types'
+import { WSMessageSchema, wsMessageSchema } from './validators/wsValidators'
 
-type WSMessage = {
-    type: 'message'
-    data: string
+type WSRawData = {
+    username: string
 }
 
-const activeConnections = new Set<WSContext>()
+const activeConnections = new Set<WSContext<WSRawData>>()
 
 export function broadcastMessage(data: string) {
     for (const ws of activeConnections) {
@@ -17,25 +17,47 @@ export function broadcastMessage(data: string) {
     }
 }
 
-export const wsHandler = (c: Context<Env>): WSEvents => ({
+export function sendMessage(msg: string, to: string[]) {
+    for (const ws of activeConnections) {
+        for (const username of to) {
+            if (ws.raw?.username === username) {
+                ws.send(JSON.stringify({ type: 'message', message: msg }))
+            }
+        }
+    }
+}
+
+export const wsHandler = (c: Context<Env>): WSEvents<WSRawData> => ({
     onOpen: (evt, ws) => {
         console.log('WebSocket connection opened')
         activeConnections.add(ws)
+
         const user = c.get('user')
-        console.log({ user })
+
+        if (!user) {
+            ws.send(JSON.stringify({ type: 'status', message: 'unauthorized' }))
+            return ws.close()
+        }
+
+        ws.raw = {
+            username: user.username
+        }
     },
 
     onMessage: (msg, ws) => {
-        const { type, data } = JSON.parse(msg.data.toString()) as WSMessage
-        console.log(data)
+        if (ws.raw && typeof msg.data === 'string') {
+            const wsData = JSON.parse(msg.data)
 
-        const isConnectd = ws.readyState === 1
+            const validatedFields = wsMessageSchema.safeParse(wsData)
+            if (!validatedFields.success) {
+                return ws.send(JSON.stringify({ type: 'status', data: 'invalid data' }))
+            }
 
-        if (isConnectd) {
-            if (type === 'message' && data) {
-                const message = JSON.stringify({ type: 'message', data })
+            const { type, message, to } = validatedFields.data
+            if (type === 'message') {
+                const sendTo = [ws.raw.username, to]
+                sendMessage(message, sendTo)
                 // handleRedisMessagePublishing(message)
-                broadcastMessage(message)
             }
         }
     },

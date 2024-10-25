@@ -14,6 +14,10 @@ import { messagesRoutes } from './routes/messagesRoutes'
 
 const app = new Hono()
 
+type User = {
+    username: string
+}
+
 export const { upgradeWebSocket, injectWebSocket } = createNodeWebSocket({ app })
 
 app.use(logger())
@@ -21,16 +25,15 @@ app.use(csrf())
 
 app.use(cors({ origin: '*' })) // TODO: Remove this on production
 
-app.use('*', authMiddleware)
-app.use('*', apiRatelimit)
+app.use('/api/*', authMiddleware)
+app.use('/api/*', apiRatelimit)
 
 const apiServer = app
     .basePath('/api')
     .route('/auth', authRoutes)
     .route('/contact', contactsRoutes)
     .route('/messages', messagesRoutes)
-
-app.get('/', upgradeWebSocket(wsHandler))
+    .get('/', upgradeWebSocket(wsHandler as any))
 
 // handleRedisMessageSubscription()
 
