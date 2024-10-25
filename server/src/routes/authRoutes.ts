@@ -1,4 +1,4 @@
-import { vValidator } from '@hono/valibot-validator'
+import { zValidator } from '@hono/zod-validator'
 import { hash, verify } from '@node-rs/argon2'
 import { createId } from '@paralleldrive/cuid2'
 import { Hono } from 'hono'
@@ -9,7 +9,7 @@ import { getUser } from '../middleware'
 import { createSession, generateSessionToken, setSessionTokenCookie } from '../utils/auth'
 
 export const authRoutes = new Hono()
-    .post('/login', vValidator('json', loginSchema), async (c) => {
+    .post('/login', zValidator('json', loginSchema), async (c) => {
         const { email, password } = c.req.valid('json')
 
         try {
@@ -35,7 +35,7 @@ export const authRoutes = new Hono()
             return c.body('Internal server error', 500)
         }
     })
-    .post('/register', vValidator('json', registerSchema), async (c) => {
+    .post('/register', zValidator('json', registerSchema), async (c) => {
         const user = c.req.valid('json')
         try {
             const userExists = await getUserByEmail(user.email)

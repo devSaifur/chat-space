@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { FormEvent, useEffect, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import {
@@ -8,6 +8,7 @@ import {
   Search,
   Send
 } from 'lucide-react'
+import { toast } from 'sonner'
 
 import { api } from '@/lib/api'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -21,6 +22,7 @@ export const Route = createFileRoute('/_protected/')({
   loader: async () => {
     const res = await api.contact.$get()
     if (!res.ok) {
+      toast.error('Something went wrong, please try again')
       return null
     }
     return res.json()
@@ -41,6 +43,7 @@ function HomePage() {
   const [message, setMessage] = useState('')
   const chatEndRef = useRef<HTMLDivElement>(null)
   const contacts = Route.useLoaderData()
+  const wsRef = useRef<WebSocket | null>(null)
 
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
 
@@ -69,10 +72,34 @@ function HomePage() {
   useEffect(() => {
     const ws = new WebSocket('ws://localhost:3000/api')
 
+    wsRef.current = ws
+
     ws.onopen = () => {
       console.log('WebSocket connection opened')
     }
+
+    ws.onmessage = (msg) => {
+      if (typeof msg.data === 'string') {
+        const data = JSON.parse(msg.data)
+        if (data.type === 'message') {
+          console.log(data.message)
+        }
+      }
+    }
+
+    ws.onclose = () => {
+      console.log('WebSocket connection closed')
+    }
   }, [])
+
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    if (wsRef.current) {
+      wsRef.current.send(
+        JSON.stringify({ type: 'message', message, to: 'test' })
+      )
+    }
+  }
 
   return (
     <div className="mx-auto flex h-screen max-w-7xl overflow-hidden">
@@ -178,10 +205,7 @@ function HomePage() {
               ))}
               <div ref={chatEndRef} />
             </ScrollArea>
-            <form
-              // onSubmit={handleSendMessage}
-              className="flex items-center p-4"
-            >
+            <form onSubmit={handleSubmit} className="flex items-center p-4">
               <Button variant="ghost" size="icon">
                 <Paperclip className="h-5 w-5" />
               </Button>
