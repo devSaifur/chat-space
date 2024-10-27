@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 
-import { contacts } from './contactRoutes'
+import { contacts } from './contactsRoutes'
 
 export const messagesRoutes = new Hono().get('/:username', (c) => {
     const username = c.req.param('username')

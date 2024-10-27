@@ -10,15 +10,16 @@ import { apiRatelimit } from './lib/rate-limit'
 import { wsHandler } from './lib/ws'
 import { authMiddleware } from './middleware'
 import { authRoutes } from './routes/authRoutes'
-import { contactsRoutes } from './routes/contactRoutes'
+import { contactsRoutes } from './routes/contactsRoutes'
 import { messagesRoutes } from './routes/messagesRoutes'
+import { usersRoutes } from './routes/usersRoutes'
 
 const app = new Hono()
 
 export const { upgradeWebSocket, injectWebSocket } = createNodeWebSocket({ app })
 
 app.use(logger())
-app.use(csrf())
+app.use(csrf({ origin: '*' }))
 
 app.use(cors({ origin: '*' })) // TODO: Remove this on production
 
@@ -28,9 +29,11 @@ app.use('/api/*', apiRatelimit)
 const apiServer = app
     .basePath('/api')
     .route('/auth', authRoutes)
-    .route('/contact', contactsRoutes)
+    .route('/users', usersRoutes)
+    .route('/contacts', contactsRoutes)
     .route('/messages', messagesRoutes)
-    .get('/', upgradeWebSocket(wsHandler as any))
+
+apiServer.get('/', upgradeWebSocket(wsHandler as any))
 
 // handleRedisMessageSubscription()
 

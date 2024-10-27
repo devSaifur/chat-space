@@ -16,11 +16,12 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { PageLoader } from '@/components/page-loader'
+import { Sidebar } from '@/components/sidebar'
 
 export const Route = createFileRoute('/_protected/')({
   component: HomePage,
   loader: async () => {
-    const res = await api.contact.$get()
+    const res = await api.contacts.$get()
     if (!res.ok) {
       toast.error('Something went wrong, please try again')
       return null
@@ -103,59 +104,10 @@ function HomePage() {
 
   return (
     <div className="mx-auto flex h-screen max-w-7xl overflow-hidden">
-      {/* Sidebar */}
-      <div
-        className={`w-full bg-secondary md:w-1/3 ${selectedContact ? 'hidden md:block' : ''}`}
-      >
-        <div className="flex items-center justify-between p-4">
-          <Avatar>
-            <AvatarImage
-              src="/placeholder.svg?height=40&width=40"
-              alt="Your avatar"
-            />
-            <AvatarFallback>You</AvatarFallback>
-          </Avatar>
-          <div className="flex space-x-2">
-            <Button variant="ghost" size="icon">
-              <Search className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <MoreVertical className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-        <div className="p-2">
-          <Input placeholder="Search or start new chat" />
-        </div>
-        <ScrollArea className="h-[calc(100vh-120px)]">
-          {contacts?.map((contact) => (
-            <div
-              key={contact.id}
-              className="flex cursor-pointer items-center p-3"
-              onClick={() => setSelectedContact(contact)}
-            >
-              <Avatar className="h-12 w-12">
-                <AvatarImage src={contact.avatar} alt={contact.name} />
-                <AvatarFallback>{contact.name[0]}</AvatarFallback>
-              </Avatar>
-              <div className="ml-3 flex-1">
-                <div className="flex justify-between">
-                  <p className="font-semibold">{contact.name}</p>
-                  <p className="text-xs text-gray-500">{contact.time}</p>
-                </div>
-                <p className="truncate text-sm text-gray-500">
-                  {contact.lastMessage}
-                </p>
-              </div>
-            </div>
-          ))}
-        </ScrollArea>
-      </div>
+      <Sidebar />
 
       {/* Chat Area */}
-      <div
-        className={`flex w-full flex-col md:w-2/3 ${!selectedContact ? 'hidden md:flex' : ''}`}
-      >
+      <div className="flex w-full flex-col md:flex md:w-2/3">
         {selectedContact && (
           <>
             <div className="items-center0 flex p-4">

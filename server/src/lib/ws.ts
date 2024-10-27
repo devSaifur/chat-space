@@ -17,7 +17,7 @@ export function broadcastMessage(data: string) {
     }
 }
 
-export function sendMessage(msg: string, to: string[]) {
+function sendMessage(msg: string, to: string[]) {
     for (const ws of activeConnections) {
         for (const username of to) {
             if (ws.raw?.username === username) {
@@ -49,6 +49,7 @@ export const wsHandler = (c: Context<Env>): WSEvents<WSRawData> => ({
             const wsData = JSON.parse(msg.data)
 
             const validatedFields = wsMessageSchema.safeParse(wsData)
+
             if (!validatedFields.success) {
                 return ws.send(JSON.stringify({ type: 'status', data: 'invalid data' }))
             }

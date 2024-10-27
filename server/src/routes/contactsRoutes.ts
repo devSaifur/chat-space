@@ -1,5 +1,10 @@
+import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
+import * as z from 'zod'
 
+import { addContact } from '../data/contact'
+import { getAllUsers, getUserByUsername } from '../data/user'
+import { getUser } from '../middleware'
 import type { Env } from '../types'
 
 type Message = {
@@ -182,13 +187,32 @@ export const contacts: Contact[] = [
     }
 ]
 
-export const contactsRoutes = new Hono<Env>().get('/', (c) => {
-    const user = c.get('user')
+export const contactsRoutes = new Hono<Env>()
+    .get('/', (c) => {
+        const user = c.get('user')
 
-    const contactWithLastMessage = contacts.map((contact) => {
-        const { messages, ...rest } = contact
-        return rest
+        const contactWithLastMessage = contacts.map((contact) => {
+            const { messages, ...rest } = contact
+            return rest
+        })
+
+        return c.json(contactWithLastMessage, 200)
     })
+    .post('/add', getUser, zValidator('json', z.string().min(3).max(126)), async (c) => {
+        const username = c.req.valid('json')
+        const user = c.get('user')
 
-    return c.json(contactWithLastMessage, 200)
-})
+        try {
+            const toBeAddedUser = await getUserByUsername(username)
+
+            if (!toBeAddedUser) {
+                return c.json({ error: 'User not found' }, 404)
+            }
+
+            await addContact(user.id, toBeAddedUser.id)
+            return c.json({ message: 'Contact added successfully' }, 201)
+        } catch (err) {
+            console.error(err)
+            return c.json({ error: 'Something went wrong' }, 500)
+        }
+    })
