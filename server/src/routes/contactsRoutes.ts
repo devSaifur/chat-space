@@ -198,8 +198,8 @@ export const contactsRoutes = new Hono<Env>()
 
         return c.json(contactWithLastMessage, 200)
     })
-    .post('/add', getUser, zValidator('json', z.string().min(3).max(126)), async (c) => {
-        const username = c.req.valid('json')
+    .post('/add', getUser, async (c) => {
+        const username = 'alice'
         const user = c.get('user')
 
         try {

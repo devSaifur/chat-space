@@ -3,7 +3,6 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { csrf } from 'hono/csrf'
 import { logger } from 'hono/logger'
-import type { WSContext } from 'hono/ws'
 
 import { handleRedisMessageSubscription } from './features/chat'
 import { apiRatelimit } from './lib/rate-limit'
@@ -19,7 +18,7 @@ const app = new Hono()
 export const { upgradeWebSocket, injectWebSocket } = createNodeWebSocket({ app })
 
 app.use(logger())
-app.use(csrf({ origin: '*' }))
+app.use(csrf())
 
 app.use(cors({ origin: '*' })) // TODO: Remove this on production
 

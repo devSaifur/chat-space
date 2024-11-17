@@ -1,5 +1,5 @@
 import { AvatarImage } from '@radix-ui/react-avatar'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Loader2, UserRoundPlus } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -10,6 +10,8 @@ import { Button } from './ui/button'
 import { ScrollArea } from './ui/scroll-area'
 
 export function AllUsers() {
+  const queryClient = useQueryClient()
+
   const { data: users, isLoading } = useQuery({
     queryKey: ['all-users'],
     queryFn: async () => {
@@ -18,11 +20,11 @@ export function AllUsers() {
         return null
       }
       return res.json()
-    }
+    },
+    staleTime: Infinity
   })
 
   const { mutate: addContact, isPending } = useMutation({
-    mutationKey: ['add-contact'],
     mutationFn: async (username: string) => {
       const res = await api.contacts.add.$post({ json: username })
       if (!res.ok) {
@@ -32,6 +34,7 @@ export function AllUsers() {
     },
 
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['all-users'], type: 'all' })
       toast.success('Contact added successfully')
     },
     onError: () => {
