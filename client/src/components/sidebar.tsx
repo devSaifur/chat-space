@@ -4,7 +4,6 @@ import { AllUsers } from './all-users'
 import { MessagesList } from './messages-list'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button } from './ui/button'
-import { Input } from './ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 
 export function Sidebar() {
@@ -27,9 +26,7 @@ export function Sidebar() {
           </Button>
         </div>
       </div>
-      <div className="p-2">
-        <Input placeholder="Search or start new chat" />
-      </div>
+
       <Tabs defaultValue="messages" className="w-full">
         <TabsList className="w-full *:w-full">
           <TabsTrigger value="messages">Messages</TabsTrigger>

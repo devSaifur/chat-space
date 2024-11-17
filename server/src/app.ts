@@ -36,6 +36,11 @@ apiServer.get('/', upgradeWebSocket(wsHandler as any))
 
 // handleRedisMessageSubscription()
 
+app.onError((err, c) => {
+    console.error(err)
+    return c.json({ error: 'Something went wrong' }, 500)
+})
+
 export type ApiServer = typeof apiServer
 
 export default app

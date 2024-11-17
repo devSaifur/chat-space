@@ -202,17 +202,12 @@ export const contactsRoutes = new Hono<Env>()
         const username = 'alice'
         const user = c.get('user')
 
-        try {
-            const toBeAddedUser = await getUserByUsername(username)
+        const toBeAddedUser = await getUserByUsername(username)
 
-            if (!toBeAddedUser) {
-                return c.json({ error: 'User not found' }, 404)
-            }
-
-            await addContact(user.id, toBeAddedUser.id)
-            return c.json({ message: 'Contact added successfully' }, 201)
-        } catch (err) {
-            console.error(err)
-            return c.json({ error: 'Something went wrong' }, 500)
+        if (!toBeAddedUser) {
+            return c.json({ error: 'User not found' }, 404)
         }
+
+        await addContact(user.id, toBeAddedUser.id)
+        return c.json({ message: 'Contact added successfully' }, 201)
     })
