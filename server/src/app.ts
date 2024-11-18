@@ -4,8 +4,8 @@ import { cors } from 'hono/cors'
 import { csrf } from 'hono/csrf'
 import { logger } from 'hono/logger'
 
-import { handleRedisMessageSubscription } from './features/chat'
 import { apiRatelimit } from './lib/rate-limit'
+import { handleRedisMessageSubscription } from './lib/redis'
 import { wsHandler } from './lib/ws'
 import { authMiddleware } from './middleware'
 import { authRoutes } from './routes/authRoutes'
@@ -34,7 +34,7 @@ const apiServer = app
 
 apiServer.get('/', upgradeWebSocket(wsHandler as any))
 
-// handleRedisMessageSubscription()
+handleRedisMessageSubscription()
 
 app.onError((err, c) => {
     console.dir(`Error: ${err.message}`)

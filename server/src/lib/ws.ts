@@ -1,8 +1,9 @@
 import type { Context } from 'hono'
 import type { WSContext, WSEvents } from 'hono/ws'
 
-import { handleRedisMessagePublishing } from '../features/chat'
+import { handleRedisMessagePublishing } from '../lib/redis'
 import type { Env } from '../types'
+import { getUsernameFromSession } from '../utils/auth'
 import { WSMessageSchema, wsMessageSchema } from './validators/wsValidators'
 
 type WSRawData = {
@@ -11,36 +12,25 @@ type WSRawData = {
 
 const activeConnections = new Set<WSContext<WSRawData>>()
 
-export function broadcastMessage(data: string) {
-    for (const ws of activeConnections) {
-        ws.send(data)
-    }
-}
-
-function sendMessage(msg: string, to: string[]) {
+export function sendMessageToClients(data: string) {
+    const { message, to } = JSON.parse(data) as WSMessageSchema & { to: string[] }
     for (const ws of activeConnections) {
         for (const username of to) {
             if (ws.raw?.username === username) {
-                ws.send(JSON.stringify({ type: 'message', message: msg }))
+                ws.send(JSON.stringify({ type: 'message', message }))
             }
         }
     }
 }
 
 export const wsHandler = (c: Context<Env>): WSEvents<WSRawData> => ({
-    onOpen: (evt, ws) => {
+    onOpen: async (evt, ws) => {
         console.log('WebSocket connection opened')
         activeConnections.add(ws)
 
-        const user = c.get('user')
-
-        if (!user) {
-            ws.send(JSON.stringify({ type: 'status', message: 'unauthorized' }))
-            return ws.close()
-        }
-
+        const username = (await validateUser(c, ws)) as string
         ws.raw = {
-            username: user.username
+            username
         }
     },
 
@@ -54,12 +44,19 @@ export const wsHandler = (c: Context<Env>): WSEvents<WSRawData> => ({
                 return ws.send(JSON.stringify({ type: 'status', data: 'invalid data' }))
             }
 
-            const { type, message, to } = validatedFields.data
+            const { type } = validatedFields.data
+
             if (type === 'message') {
-                const sendTo = [ws.raw.username, to]
-                sendMessage(message, sendTo)
-                // handleRedisMessagePublishing(message)
+                handleRedisMessagePublishing(
+                    JSON.stringify({
+                        ...validatedFields.data,
+                        to: [ws.raw.username, validatedFields.data.to]
+                    })
+                )
             }
+        } else {
+            ws.send(JSON.stringify({ type: 'status', message: 'unauthorized' }))
+            return ws.close()
         }
     },
 
@@ -72,3 +69,17 @@ export const wsHandler = (c: Context<Env>): WSEvents<WSRawData> => ({
         console.log('ws error')
     }
 })
+
+async function validateUser(c: Context, ws: WSContext) {
+    const session = c.req.header('session') ?? null
+    if (!session) {
+        ws.send(JSON.stringify({ type: 'status', message: 'unauthorized' }))
+        return ws.close()
+    }
+    const username = await getUsernameFromSession(session)
+    if (!username) {
+        ws.send(JSON.stringify({ type: 'status', message: 'unauthorized' }))
+        return ws.close()
+    }
+    return username
+}
