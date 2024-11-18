@@ -55,6 +55,7 @@ export const authRoutes = new Hono()
 
         return c.json(
             {
+                id: user.id,
                 username: user.username,
                 email: user.email
             },

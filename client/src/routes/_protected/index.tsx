@@ -11,6 +11,8 @@ import {
 import { toast } from 'sonner'
 
 import { api } from '@/lib/api'
+import { userQueryOption } from '@/lib/queries'
+import { formatDate } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -32,12 +34,12 @@ export const Route = createFileRoute('/_protected/')({
 })
 
 type Contact = {
-  id: number
+  id: string
   name: string
   username: string
-  avatar: string
-  lastMessage: string
-  time: string
+  lastMessage: string | null
+  time: string | null
+  lastLogin: string | null
 }
 
 function HomePage() {
@@ -45,6 +47,7 @@ function HomePage() {
   const chatEndRef = useRef<HTMLDivElement>(null)
   const contacts = Route.useLoaderData()
   const wsRef = useRef<WebSocket | null>(null)
+  const { data: user } = useQuery(userQueryOption)
 
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
 
@@ -52,20 +55,20 @@ function HomePage() {
     setSelectedContact(contacts[0])
   }
 
-  const username = selectedContact?.username as string
+  const senderId = selectedContact?.id as string
 
   const { data: messagesQueryResult } = useQuery({
-    queryKey: ['messages', username],
+    queryKey: ['messages', senderId],
     queryFn: async () => {
-      const res = await api.messages[':username'].$get({
-        param: { username }
+      const res = await api.messages[':senderId'].$get({
+        param: senderId
       })
       if (res.status !== 200) {
         throw new Error(res.statusText)
       }
       return res.json()
     },
-    enabled: !!username
+    enabled: !!senderId
   })
 
   const messages = messagesQueryResult ? messagesQueryResult : []
@@ -120,10 +123,7 @@ function HomePage() {
                 <ChevronLeft className="h-5 w-5" />
               </Button>
               <Avatar className="h-10 w-10">
-                <AvatarImage
-                  src={selectedContact.avatar}
-                  alt={selectedContact.name}
-                />
+                <AvatarImage src={''} alt={selectedContact.name} />
                 <AvatarFallback>{selectedContact.name[0]}</AvatarFallback>
               </Avatar>
               <div className="ml-3 flex-1">
@@ -141,16 +141,16 @@ function HomePage() {
               {messages.map((msg) => (
                 <div
                   key={msg.id}
-                  className={`mb-4 flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                  className={`mb-4 flex ${msg.receiverId === user?.id ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[70%] rounded-lg p-2 ${msg.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-blue-500'}`}
+                    className={`max-w-[70%] rounded-lg p-2 ${msg.receiverId === user?.id ? 'bg-blue-500 text-white' : 'bg-blue-500'}`}
                   >
                     <p>{msg.content}</p>
                     <p
-                      className={`mt-1 text-xs ${msg.sender === 'user' ? 'text-blue-100' : 'text-gray-500'}`}
+                      className={`mt-1 text-xs ${msg.receiverId === user?.id ? 'text-blue-100' : 'text-gray-500'}`}
                     >
-                      {msg.time}
+                      {formatDate(msg.sentAt)}
                     </p>
                   </div>
                 </div>

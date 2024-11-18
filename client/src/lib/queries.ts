@@ -9,8 +9,7 @@ export const userQueryOption = queryOptions({
     if (!res.ok) {
       return null
     }
-    const user = await res.json()
-    return user
+    return await res.json()
   },
   staleTime: Infinity
 })

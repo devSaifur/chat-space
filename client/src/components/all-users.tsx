@@ -26,7 +26,7 @@ export function AllUsers() {
 
   const { mutate: addContact, isPending } = useMutation({
     mutationFn: async (username: string) => {
-      const res = await api.contacts.add.$post({ json: username })
+      const res = await api.contacts.add.$post({ param: username })
       if (!res.ok) {
         throw new Error(res.statusText)
       }

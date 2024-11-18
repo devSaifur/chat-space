@@ -38,7 +38,7 @@ export const messages = pgTable('messages', {
         .references(() => users.id)
         .notNull(),
     content: text('content').notNull(),
-    sentAt: timestamp('sent_at').defaultNow(),
+    sentAt: timestamp('sent_at').defaultNow().notNull(),
     readAt: timestamp('read_at')
 })
 

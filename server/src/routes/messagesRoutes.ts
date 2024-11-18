@@ -1,15 +1,20 @@
+import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
+import * as z from 'zod'
 
-import { contacts } from './contactsRoutes'
+import { getMessagesOfUser } from '../data/message'
+import { getUser } from '../middleware'
 
-export const messagesRoutes = new Hono().get('/:username', (c) => {
-    const username = c.req.param('username')
+export const messagesRoutes = new Hono().get(
+    '/:senderId',
+    zValidator('param', z.string().min(1).max(20)),
+    getUser,
+    async (c) => {
+        const senderId = c.req.valid('param')
+        const user = c.get('user')
 
-    const messages = contacts.find((contact) => contact.username === username)?.messages
+        const messages = await getMessagesOfUser(senderId, user.id)
 
-    if (!messages || messages.length === 0) {
-        return c.json({ message: 'User not found' }, 404)
+        return c.json(messages, 200)
     }
-
-    return c.json(messages, 200)
-})
+)
