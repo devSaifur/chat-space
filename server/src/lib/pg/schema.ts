@@ -12,6 +12,14 @@ export const users = pgTable('user', {
     lastLogin: timestamp('last_login')
 })
 
+export const usersRelations = relations(users, ({ many, one }) => ({
+    contacts: one(contacts, {
+        fields: [users.id],
+        references: [contacts.userId]
+    }),
+    messages: one(messages, { fields: [users.id], references: [messages.senderId] })
+}))
+
 export const contacts = pgTable(
     'contacts',
     {
@@ -28,6 +36,13 @@ export const contacts = pgTable(
         uniqueContact: unique().on(table.userId, table.contactId)
     })
 )
+
+export const contactsRelations = relations(contacts, ({ one }) => ({
+    user: one(users, {
+        fields: [contacts.userId],
+        references: [users.id]
+    })
+}))
 
 export const messages = pgTable('messages', {
     id: serial('id').primaryKey(),

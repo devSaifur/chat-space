@@ -8,10 +8,9 @@ import {
   Search,
   Send
 } from 'lucide-react'
-import { toast } from 'sonner'
 
 import { api } from '@/lib/api'
-import { userQueryOption } from '@/lib/queries'
+import { contactsQueryOption, userQueryOption } from '@/lib/queries'
 import { formatDate } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -22,13 +21,8 @@ import { Sidebar } from '@/components/sidebar'
 
 export const Route = createFileRoute('/_protected/')({
   component: HomePage,
-  loader: async () => {
-    const res = await api.contacts.$get()
-    if (!res.ok) {
-      toast.error('Something went wrong, please try again')
-      return null
-    }
-    return res.json()
+  loader: async ({ context }) => {
+    return await context.queryClient.fetchQuery(contactsQueryOption)
   },
   pendingComponent: PageLoader
 })
@@ -37,8 +31,6 @@ type Contact = {
   id: string
   name: string
   username: string
-  lastMessage: string | null
-  time: string | null
   lastLogin: string | null
 }
 

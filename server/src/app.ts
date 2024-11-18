@@ -37,9 +37,7 @@ apiServer.get('/', upgradeWebSocket(wsHandler as any))
 // handleRedisMessageSubscription()
 
 app.onError((err, c) => {
-    console.dir(`Error: ${err.message}`, {
-        color: true
-    })
+    console.dir(`Error: ${err.message}`)
     return c.json({ error: 'Something went wrong' }, 500)
 })
 

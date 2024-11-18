@@ -35,19 +35,10 @@ export const contactsRoutes = new Hono<Env>()
             numericSeparater: true
         })
 
-        const filteredContacts = userContacts.map((contact) => {
-            const { user, messages } = contact
-            return {
-                ...user,
-                lastMessage: messages?.content || null,
-                time: messages?.sentAt || null
-            }
-        })
-
-        return c.json(filteredContacts, 200)
+        return c.json(userContacts, 200)
     })
-    .post('/add', getUser, zValidator('param', z.string().min(1).max(20)), async (c) => {
-        const username = c.req.valid('param')
+    .post('/add', getUser, zValidator('json', z.string().min(1).max(20)), async (c) => {
+        const username = c.req.valid('json')
         const user = c.get('user')
 
         const toBeAddedUser = await getUserByUsername(username)

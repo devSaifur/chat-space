@@ -1,7 +1,7 @@
 import { MoreVertical, Search } from 'lucide-react'
 
 import { AllUsers } from './all-users'
-import { MessagesList } from './messages-list'
+import { ContactsList } from './contacts-list'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button } from './ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
@@ -36,7 +36,7 @@ export function Sidebar() {
           Make changes to your account here.
         </TabsContent>
         <TabsContent value="messages">
-          <MessagesList />
+          <ContactsList />
         </TabsContent>
         <TabsContent value="users">
           <AllUsers />
