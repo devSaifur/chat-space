@@ -4,6 +4,7 @@ import { cors } from 'hono/cors'
 import { csrf } from 'hono/csrf'
 import { logger } from 'hono/logger'
 
+import { rabbitMQService } from './lib/rabbitMq'
 import { apiRatelimit } from './lib/rate-limit'
 import { handleRedisMessageSubscription } from './lib/redis'
 import { wsHandler } from './lib/ws'
@@ -34,7 +35,16 @@ const apiServer = app
 
 apiServer.get('/', upgradeWebSocket(wsHandler as any))
 
-handleRedisMessageSubscription()
+async function initServices() {
+    try {
+        await handleRedisMessageSubscription()
+        await rabbitMQService.startConsuming()
+    } catch (err) {
+        console.error(err)
+    }
+}
+
+initServices()
 
 app.onError((err, c) => {
     console.dir(`Error: ${err.message}`)

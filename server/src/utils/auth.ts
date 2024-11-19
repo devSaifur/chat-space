@@ -91,12 +91,12 @@ export function deleteSessionTokenCookie(c: Context): void {
     })
 }
 
-export async function getUsernameFromSession(token: string) {
+export async function getUserIdFromSession(token: string) {
     const { user } = await validateSessionToken(token)
 
     if (!user) {
         return null
     }
 
-    return user.username
+    return user.id
 }

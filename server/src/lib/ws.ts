@@ -3,11 +3,12 @@ import type { WSContext, WSEvents } from 'hono/ws'
 
 import { handleRedisMessagePublishing } from '../lib/redis'
 import type { Env } from '../types'
-import { getUsernameFromSession } from '../utils/auth'
+import { getUserIdFromSession } from '../utils/auth'
+import { rabbitMQService } from './rabbitMq'
 import { WSMessageSchema, wsMessageSchema } from './validators/wsValidators'
 
 type WSRawData = {
-    username: string
+    id: string
 }
 
 const activeConnections = new Set<WSContext<WSRawData>>()
@@ -15,8 +16,8 @@ const activeConnections = new Set<WSContext<WSRawData>>()
 export function sendMessageToClients(data: string) {
     const { message, to } = JSON.parse(data) as WSMessageSchema & { to: string[] }
     for (const ws of activeConnections) {
-        for (const username of to) {
-            if (ws.raw?.username === username) {
+        for (const id of to) {
+            if (ws.raw?.id === id) {
                 ws.send(JSON.stringify({ type: 'message', message }))
             }
         }
@@ -28,16 +29,15 @@ export const wsHandler = (c: Context<Env>): WSEvents<WSRawData> => ({
         console.log('WebSocket connection opened')
         activeConnections.add(ws)
 
-        const username = (await validateUser(c, ws)) as string
+        const id = (await validateUser(c, ws)) as string
         ws.raw = {
-            username
+            id
         }
     },
 
-    onMessage: (msg, ws) => {
+    onMessage: async (msg, ws) => {
         if (ws.raw && typeof msg.data === 'string') {
             const wsData = JSON.parse(msg.data)
-
             const validatedFields = wsMessageSchema.safeParse(wsData)
 
             if (!validatedFields.success) {
@@ -45,14 +45,17 @@ export const wsHandler = (c: Context<Env>): WSEvents<WSRawData> => ({
             }
 
             const { type } = validatedFields.data
-
             if (type === 'message') {
-                handleRedisMessagePublishing(
-                    JSON.stringify({
-                        ...validatedFields.data,
-                        to: [ws.raw.username, validatedFields.data.to]
-                    })
-                )
+                const validMessage = JSON.stringify({
+                    ...validatedFields.data,
+                    to: [ws.raw.id, validatedFields.data.to]
+                })
+                try {
+                    await handleRedisMessagePublishing(validMessage)
+                    await rabbitMQService.publishMessage(validMessage)
+                } catch (err) {
+                    console.error('Error:', err)
+                }
             }
         } else {
             ws.send(JSON.stringify({ type: 'status', message: 'unauthorized' }))
@@ -76,10 +79,10 @@ async function validateUser(c: Context, ws: WSContext) {
         ws.send(JSON.stringify({ type: 'status', message: 'unauthorized' }))
         return ws.close()
     }
-    const username = await getUsernameFromSession(session)
-    if (!username) {
+    const id = await getUserIdFromSession(session)
+    if (!id) {
         ws.send(JSON.stringify({ type: 'status', message: 'unauthorized' }))
         return ws.close()
     }
-    return username
+    return id
 }

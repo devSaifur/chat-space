@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   db:
     image: postgres:17-alpine
@@ -15,15 +14,28 @@ services:
   redis:
     image: "redis:latest"
     restart: always
-    environment:
-      - redis-server --appendonly yes
     ports:
       - "6379:6379"
+    environment:
+      - redis-server --appendonly yes
     volumes:
-      - redis-data:/data
+      - "redis-data:/data"
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    ports:
+      - "5672:5672" # AMQP port
+      - "15672:15672" # Management UI port
+    volumes:
+      - "rabbitmq-data:/var/lib/rabbitmq"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
 
 volumes:
   postgres-data:
     driver: local
   redis-data:
+    driver: local
+  rabbitmq-data:
     driver: local
