@@ -30,14 +30,14 @@ export const Route = createFileRoute('/_protected/')({
 })
 
 function HomePage() {
-  const [message, setMessage] = useState('')
-  const chatEndRef = useRef<HTMLDivElement>(null)
   const contacts = Route.useLoaderData()
-  const wsRef = useRef<WebSocket | null>(null)
   const { data: user } = useQuery(userQueryOption)
 
-  const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
+  const [message, setMessage] = useState('')
+  const chatEndRef = useRef<HTMLDivElement>(null)
+  const wsRef = useRef<WebSocket | null>(null)
 
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
   if (!selectedContact && contacts && contacts.length > 0) {
     setSelectedContact(contacts[0])
   }
@@ -94,6 +94,7 @@ function HomePage() {
 
   return (
     <div className="mx-auto flex h-screen max-w-7xl overflow-hidden">
+      {/* Sidebar */}
       <Sidebar setSelectedContact={setSelectedContact} />
 
       {/* Chat Area */}

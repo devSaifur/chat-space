@@ -14,9 +14,9 @@ type WSRawData = {
 const activeConnections = new Set<WSContext<WSRawData>>()
 
 export function sendMessageToClients(data: string) {
-    const { message, to } = JSON.parse(data) as WSMessageSchema & { to: string[] }
+    const { message, to, from } = JSON.parse(data) as WSMessageSchema & { from: string }
     for (const ws of activeConnections) {
-        for (const id of to) {
+        for (const id of [to, from]) {
             if (ws.raw?.id === id) {
                 ws.send(JSON.stringify({ type: 'message', message }))
             }
@@ -48,7 +48,7 @@ export const wsHandler = (c: Context<Env>): WSEvents<WSRawData> => ({
             if (type === 'message') {
                 const validMessage = JSON.stringify({
                     ...validatedFields.data,
-                    to: [ws.raw.id, validatedFields.data.to]
+                    from: ws.raw.id
                 })
                 try {
                     await handleRedisMessagePublishing(validMessage)

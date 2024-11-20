@@ -90,11 +90,11 @@ class RabbitMQService {
     }
 
     private async processMessage(msg: string) {
-        const { message, to } = JSON.parse(msg) as Message
+        const { message, to, from } = JSON.parse(msg) as WSMessageSchema & { from: string }
         try {
             await db.insert(messages).values({
-                senderId: to[0],
-                receiverId: to[1],
+                senderId: from,
+                receiverId: to,
                 sentAt: new Date(),
                 content: message
             })
@@ -104,7 +104,5 @@ class RabbitMQService {
         }
     }
 }
-
-type Message = Omit<WSMessageSchema, 'to'> & { to: string[] }
 
 export const rabbitMQService = new RabbitMQService()
