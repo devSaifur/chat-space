@@ -5,12 +5,12 @@ import * as z from 'zod'
 import { getMessagesOfUser } from '../data/message'
 import { getUser } from '../middleware'
 
-export const messagesRoutes = new Hono().get(
-    '/:senderId',
-    zValidator('param', z.string().min(1).max(20)),
+export const messagesRoutes = new Hono().post(
+    '/',
+    zValidator('json', z.string().min(1).max(100)),
     getUser,
     async (c) => {
-        const senderId = c.req.valid('param')
+        const senderId = c.req.valid('json')
         const user = c.get('user')
 
         const messages = await getMessagesOfUser(senderId, user.id)

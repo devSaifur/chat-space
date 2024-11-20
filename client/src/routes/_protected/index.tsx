@@ -1,8 +1,10 @@
 import { FormEvent, useEffect, useRef, useState } from 'react'
+import { Contact } from '@/types'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import {
   ChevronLeft,
+  Loader2,
   MoreVertical,
   Paperclip,
   Search,
@@ -27,13 +29,6 @@ export const Route = createFileRoute('/_protected/')({
   pendingComponent: PageLoader
 })
 
-type Contact = {
-  id: string
-  name: string
-  username: string
-  lastLogin: string | null
-}
-
 function HomePage() {
   const [message, setMessage] = useState('')
   const chatEndRef = useRef<HTMLDivElement>(null)
@@ -49,21 +44,21 @@ function HomePage() {
 
   const senderId = selectedContact?.id as string
 
-  const { data: messagesQueryResult } = useQuery({
+  const { data: messages, isLoading } = useQuery({
     queryKey: ['messages', senderId],
     queryFn: async () => {
-      const res = await api.messages[':senderId'].$get({
-        param: senderId
+      const res = await api.messages.$post({
+        json: senderId
       })
       if (res.status !== 200) {
         throw new Error(res.statusText)
       }
       return res.json()
     },
-    enabled: !!senderId
+    retry: false,
+    enabled: Boolean(senderId),
+    staleTime: Infinity
   })
-
-  const messages = messagesQueryResult ? messagesQueryResult : []
 
   useEffect(() => {
     const ws = new WebSocket('ws://localhost:3000/api')
@@ -92,20 +87,20 @@ function HomePage() {
     e.preventDefault()
     if (wsRef.current) {
       wsRef.current.send(
-        JSON.stringify({ type: 'message', message, to: 'test' })
+        JSON.stringify({ type: 'message', message, to: selectedContact?.id })
       )
     }
   }
 
   return (
     <div className="mx-auto flex h-screen max-w-7xl overflow-hidden">
-      <Sidebar />
+      <Sidebar setSelectedContact={setSelectedContact} />
 
       {/* Chat Area */}
       <div className="flex w-full flex-col md:flex md:w-2/3">
         {selectedContact && (
           <>
-            <div className="items-center0 flex p-4">
+            <div className="flex items-center p-4">
               <Button
                 variant="ghost"
                 size="icon"
@@ -130,23 +125,33 @@ function HomePage() {
               </Button>
             </div>
             <ScrollArea className="flex-1 bg-[url('/placeholder.svg?height=600&width=800')] bg-repeat p-4">
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`mb-4 flex ${msg.receiverId === user?.id ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[70%] rounded-lg p-2 ${msg.receiverId === user?.id ? 'bg-blue-500 text-white' : 'bg-blue-500'}`}
-                  >
-                    <p>{msg.content}</p>
-                    <p
-                      className={`mt-1 text-xs ${msg.receiverId === user?.id ? 'text-blue-100' : 'text-gray-500'}`}
-                    >
-                      {formatDate(msg.sentAt)}
-                    </p>
-                  </div>
+              {isLoading ? (
+                <div className="pt-60">
+                  <Loader2 className="mx-auto size-10 animate-spin" />
                 </div>
-              ))}
+              ) : messages ? (
+                messages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`mb-4 flex ${msg.receiverId === user?.id ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-[70%] rounded-lg p-2 ${msg.receiverId === user?.id ? 'bg-blue-500 text-white' : 'bg-blue-500'}`}
+                    >
+                      <p>{msg.content}</p>
+                      <p
+                        className={`mt-1 text-xs ${msg.receiverId === user?.id ? 'text-blue-100' : 'text-gray-500'}`}
+                      >
+                        {formatDate(msg.sentAt)}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="flex justify-center pt-60">
+                  <p>You've yet to send each other a message.</p>
+                </div>
+              )}
               <div ref={chatEndRef} />
             </ScrollArea>
             <form onSubmit={handleSubmit} className="flex items-center p-4">

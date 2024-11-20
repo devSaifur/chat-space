@@ -37,6 +37,7 @@ export function AllUsers() {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-users'], type: 'all' })
+      queryClient.invalidateQueries({ queryKey: ['contacts'], type: 'all' })
       toast.success('Contact added successfully')
     },
     onError: () => {
