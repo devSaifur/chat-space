@@ -1,5 +1,8 @@
 import type { Contact } from '@/types'
+import { useQuery } from '@tanstack/react-query'
 import { MoreVertical, Search } from 'lucide-react'
+
+import { userQueryOption } from '@/lib/queries'
 
 import { AllUsers } from './all-users'
 import { ContactsList } from './contacts-list'
@@ -12,6 +15,8 @@ interface SidebarProps {
 }
 
 export function Sidebar({ setSelectedContact }: SidebarProps) {
+  const { data: user } = useQuery(userQueryOption)
+
   return (
     <div className="w-full bg-secondary md:block md:w-1/3">
       <div className="flex items-center justify-between p-4">
@@ -20,7 +25,7 @@ export function Sidebar({ setSelectedContact }: SidebarProps) {
             src="/placeholder.svg?height=40&width=40"
             alt="Your avatar"
           />
-          <AvatarFallback>You</AvatarFallback>
+          <AvatarFallback>{user?.username}</AvatarFallback>
         </Avatar>
         <div className="flex space-x-2">
           <Button variant="ghost" size="icon">

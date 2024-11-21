@@ -3,7 +3,7 @@ import { encodeHexLowerCase } from '@oslojs/encoding'
 import { createId } from '@paralleldrive/cuid2'
 import { eq } from 'drizzle-orm'
 import type { Context } from 'hono'
-import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
+import { deleteCookie, setCookie } from 'hono/cookie'
 
 import { db } from '../lib/pg'
 import type { Session } from '../lib/pg/schema'
@@ -89,14 +89,4 @@ export function deleteSessionTokenCookie(c: Context): void {
         maxAge: 0,
         secure: process.env.NODE_ENV === 'production'
     })
-}
-
-export async function getUserIdFromSession(token: string) {
-    const { user } = await validateSessionToken(token)
-
-    if (!user) {
-        return null
-    }
-
-    return user.id
 }

@@ -1,11 +1,18 @@
-import { and, eq } from 'drizzle-orm'
+import { and, desc, eq, or } from 'drizzle-orm'
 
 import { db } from '../lib/pg'
-import { contacts, messages } from '../lib/pg/schema'
+import { messages } from '../lib/pg/schema'
 
-export async function getMessagesOfUser(senderId: string, receiverId: string) {
+export async function getMessagesOfUser(userId: string, otherUserId: string) {
     return await db
         .select()
         .from(messages)
-        .where(and(eq(messages.senderId, senderId), eq(messages.receiverId, receiverId)))
+        .where(
+            or(
+                and(eq(messages.senderId, userId), eq(messages.receiverId, otherUserId)),
+                and(eq(messages.senderId, otherUserId), eq(messages.receiverId, userId))
+            )
+        )
+        .limit(10)
+        .orderBy(desc(messages.id))
 }

@@ -90,12 +90,12 @@ class RabbitMQService {
     }
 
     private async processMessage(msg: string) {
-        const { message, to, from } = JSON.parse(msg) as WSMessageSchema & { from: string }
+        const { message, senderId, receiverId, sentAt } = JSON.parse(msg) as WSMessageSchema
         try {
             await db.insert(messages).values({
-                senderId: from,
-                receiverId: to,
-                sentAt: new Date(),
+                senderId,
+                receiverId,
+                sentAt: new Date(sentAt),
                 content: message
             })
         } catch (err) {

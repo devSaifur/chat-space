@@ -1,5 +1,11 @@
 import type { InferResponseType } from 'hono/client'
 
-import type { api } from '@/lib/api'
+import { api } from '@/lib/api'
 
-export type Contact = InferResponseType<typeof api.contacts.$get>[number]
+const contacts = api.contacts.$get
+
+export type Contact = InferResponseType<typeof contacts>[number]
+
+const msg = api.messages.$get
+
+export type Message = InferResponseType<typeof msg>[number]
