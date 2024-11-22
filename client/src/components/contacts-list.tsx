@@ -8,9 +8,13 @@ import { ScrollArea } from './ui/scroll-area'
 
 interface ContactsListProps {
   setSelectedContact: (contact: Contact | null) => void
+  selectedContactId: string
 }
 
-export function ContactsList({ setSelectedContact }: ContactsListProps) {
+export function ContactsList({
+  setSelectedContact,
+  selectedContactId
+}: ContactsListProps) {
   const { data: contacts } = useQuery(contactsQueryOption)
 
   return (
@@ -19,7 +23,7 @@ export function ContactsList({ setSelectedContact }: ContactsListProps) {
         <div
           onClick={() => setSelectedContact(contact)}
           key={contact.id}
-          className="flex cursor-pointer items-center p-3"
+          className={`flex cursor-pointer items-center p-3 ${contact.id === selectedContactId && 'bg-primary/20'}`}
         >
           <Avatar className="h-12 w-12">
             <AvatarImage src={''} alt={contact.name} />
@@ -32,7 +36,7 @@ export function ContactsList({ setSelectedContact }: ContactsListProps) {
                 {new Date().toLocaleString()}
               </p>
             </div>
-            <p className="truncate text-sm text-gray-500">
+            <p className="truncate text-sm text-gray-300">
               {'No messages yet'}
             </p>
           </div>

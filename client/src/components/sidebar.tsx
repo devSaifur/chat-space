@@ -12,13 +12,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 
 interface SidebarProps {
   setSelectedContact: (contact: Contact | null) => void
+  selectedContactId: string
 }
 
-export function Sidebar({ setSelectedContact }: SidebarProps) {
+export function Sidebar({
+  setSelectedContact,
+  selectedContactId
+}: SidebarProps) {
   const { data: user } = useQuery(userQueryOption)
 
   return (
-    <div className="w-full bg-secondary md:block md:w-1/3">
+    <div className="w-full md:block md:w-1/3">
       <div className="flex items-center justify-between p-4">
         <Avatar>
           <AvatarImage
@@ -38,7 +42,7 @@ export function Sidebar({ setSelectedContact }: SidebarProps) {
       </div>
 
       <Tabs defaultValue="messages" className="w-full">
-        <TabsList className="w-full *:w-full">
+        <TabsList className="w-full rounded-none *:w-full">
           <TabsTrigger value="messages">Messages</TabsTrigger>
           <TabsTrigger value="users">Friends</TabsTrigger>
         </TabsList>
@@ -46,7 +50,10 @@ export function Sidebar({ setSelectedContact }: SidebarProps) {
           Make changes to your account here.
         </TabsContent>
         <TabsContent value="messages">
-          <ContactsList setSelectedContact={setSelectedContact} />
+          <ContactsList
+            setSelectedContact={setSelectedContact}
+            selectedContactId={selectedContactId}
+          />
         </TabsContent>
         <TabsContent value="users">
           <AllUsers />

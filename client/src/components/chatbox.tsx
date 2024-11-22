@@ -18,7 +18,7 @@ export function Chatbox({ selectedContactId }: ChatboxProps) {
   const chatEndRef = useRef<HTMLDivElement>(null)
 
   const { data: messages, isLoading } = useQuery({
-    queryKey: ['messages', selectedContactId],
+    queryKey: ['MESSAGE', selectedContactId],
     queryFn: async () => {
       const res = await api.messages.$get({
         query: { senderId: selectedContactId }
@@ -39,10 +39,8 @@ export function Chatbox({ selectedContactId }: ChatboxProps) {
     }
   }, [messages])
 
-  console.log(messages)
-
   return (
-    <ScrollArea className="flex-1 bg-[url('/placeholder.svg?height=600&width=800')] bg-repeat p-4">
+    <ScrollArea className="flex-1 bg-primary/10 px-4">
       {isLoading ? (
         <div className="pt-60">
           <Loader2 className="mx-auto size-10 animate-spin" />
@@ -58,9 +56,7 @@ export function Chatbox({ selectedContactId }: ChatboxProps) {
                 className={`max-w-[70%] rounded-lg p-2 ${msg.receiverId === user?.id ? 'bg-gray-500' : 'bg-blue-500'}`}
               >
                 <p>{msg.content}</p>
-                <p
-                  className={`mt-1 text-[10px] ${msg.receiverId === user?.id ? 'text-blue-100' : 'text-gray-400'}`}
-                >
+                <p className="mt-1 text-[8px] text-gray-300">
                   {formatDate(msg.sentAt)}
                 </p>
               </div>

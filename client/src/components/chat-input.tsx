@@ -35,26 +35,44 @@ export function ChatInput({ selectedContactId }: ChatInputProps) {
           msg.data
         ) as WSMessageSchema
 
-        console.log(msg.data)
+        if (type === 'message' && message) {
+          if (senderId == user?.id) {
+            queryClient.setQueryData(
+              ['MESSAGE', receiverId],
+              (oldMessages: Message[]) => {
+                const newMessage = {
+                  id: Math.random(),
+                  senderId,
+                  receiverId,
+                  sentAt: new Date().toISOString(),
+                  content: message
+                }
 
-        if (type === 'message') {
-          queryClient.setQueryData(
-            ['messages', selectedContactId],
-            (oldMessages: Message[]) => {
-              const newMessage = {
-                id: Math.random(),
-                senderId,
-                receiverId,
-                sentAt: new Date().toISOString(),
-                content: message
+                if (!oldMessages) {
+                  return [newMessage]
+                }
+                return oldMessages.concat(newMessage).reverse()
               }
+            )
+          } else {
+            queryClient.setQueryData(
+              ['MESSAGE', senderId],
+              (oldMessages: Message[]) => {
+                const newMessage = {
+                  id: Math.random(),
+                  senderId,
+                  receiverId,
+                  sentAt: new Date().toISOString(),
+                  content: message
+                }
 
-              if (!oldMessages) {
-                return [newMessage]
+                if (!oldMessages) {
+                  return [newMessage]
+                }
+                return oldMessages.concat(newMessage).reverse()
               }
-              return [...oldMessages, newMessage].reverse()
-            }
-          )
+            )
+          }
         }
       }
     }

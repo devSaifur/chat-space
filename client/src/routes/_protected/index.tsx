@@ -32,7 +32,10 @@ function HomePage() {
   return (
     <div className="mx-auto flex h-screen max-w-7xl overflow-hidden">
       {/* Sidebar */}
-      <Sidebar setSelectedContact={setSelectedContact} />
+      <Sidebar
+        setSelectedContact={setSelectedContact}
+        selectedContactId={selectedContactId}
+      />
 
       {/* Chat Area */}
       <div className="flex w-full flex-col md:flex md:w-2/3">
