@@ -1,10 +1,10 @@
-import type { User } from '../lib/pg/schema'
+import { auth } from '../lib/auth'
 
-export type NarrowedUser = Pick<User, 'id' | 'username' | 'email'>
+export type User = typeof auth.$Infer.Session.user
 
-export type Env = {
+export type ENV = {
     Variables: {
-        user: NarrowedUser
+        user: User
     }
 }
 

@@ -1,14 +1,13 @@
+import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   registerSchema,
   RegisterSchema
 } from '@server/lib/validators/authValidators'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { createLazyFileRoute, Link, useRouter } from '@tanstack/react-router'
+import { createLazyFileRoute, Link } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
 
-import { api } from '@/lib/api'
+import { signUp } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -28,8 +27,7 @@ export const description =
   "A sign up form with first name, last name, email and password inside a card. There's an option to sign up with GitHub and a link to login if you already have an account"
 
 function RegisterPage() {
-  const router = useRouter()
-  const queryClient = useQueryClient()
+  const [isLoading, setIsLoading] = useState(false)
 
   const { register, formState, handleSubmit } = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
@@ -43,17 +41,24 @@ function RegisterPage() {
 
   const { errors } = formState
 
-  const { mutate: signUp, isPending } = useMutation({
-    mutationFn: async (data: RegisterSchema) =>
-      await api.auth.register.$post({ json: data }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'], type: 'all' })
-      router.invalidate()
-    },
-    onError: () => {
-      toast.error('Something went wrong, please try again')
-    }
-  })
+  const handleSignUp = async (data: RegisterSchema) => {
+    await signUp.email(
+      {
+        name: data.name,
+        email: data.email,
+        password: data.password
+      },
+      {
+        onRequest: () => {
+          setIsLoading(true)
+        },
+        onError: (ctx) => {
+          setIsLoading(false)
+          console.log(ctx.error)
+        }
+      }
+    )
+  }
 
   return (
     <Card className="mx-auto mt-40 max-w-sm">
@@ -64,7 +69,7 @@ function RegisterPage() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit((data) => signUp(data))}>
+        <form onSubmit={handleSubmit(handleSignUp)}>
           <div className="grid gap-8">
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
@@ -96,7 +101,7 @@ function RegisterPage() {
                 <p className="text-red-500">{errors.password.message}</p>
               )}
             </div>
-            <Button type="submit" disabled={isPending} className="w-full">
+            <Button type="submit" disabled={isLoading} className="w-full">
               Create an account
             </Button>
           </div>

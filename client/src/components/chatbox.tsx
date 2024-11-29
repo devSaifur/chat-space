@@ -40,7 +40,7 @@ export function Chatbox({ selectedContactId }: ChatboxProps) {
   }, [messages])
 
   return (
-    <ScrollArea className="flex-1 bg-primary/10 px-4">
+    <ScrollArea className="flex-1 bg-secondary px-4">
       {isLoading ? (
         <div className="pt-60">
           <Loader2 className="mx-auto size-10 animate-spin" />

@@ -3,7 +3,7 @@ import { Contact } from '@/types'
 import { createFileRoute } from '@tanstack/react-router'
 import { MoreVertical, Search } from 'lucide-react'
 
-import { contactsQueryOption } from '@/lib/queries'
+import { api } from '@/lib/api'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { ChatInput } from '@/components/chat-input'
@@ -13,8 +13,12 @@ import { Sidebar } from '@/components/sidebar'
 
 export const Route = createFileRoute('/_protected/')({
   component: HomePage,
-  loader: async ({ context }) => {
-    return await context.queryClient.fetchQuery(contactsQueryOption)
+  loader: async () => {
+    const res = await api.contacts.$get()
+    if (!res.ok) {
+      return null
+    }
+    return res.json()
   },
   pendingComponent: PageLoader
 })

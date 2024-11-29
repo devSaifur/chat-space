@@ -1,11 +1,11 @@
+import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LoginSchema, loginSchema } from '@server/lib/validators/authValidators'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { createLazyFileRoute, Link, useRouter } from '@tanstack/react-router'
+import { createLazyFileRoute, Link } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
-import { api } from '@/lib/api'
+import { signIn } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -25,8 +25,7 @@ export const description =
   "A login form with email and password. There's an option to login with Google and a link to sign up if you don't have an account."
 
 function LoginPage() {
-  const router = useRouter()
-  const queryClient = useQueryClient()
+  const [isLoading, setIsLoading] = useState(false)
 
   const { register, formState, handleSubmit } = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
@@ -38,17 +37,23 @@ function LoginPage() {
 
   const { errors } = formState
 
-  const { mutate: login, isPending } = useMutation({
-    mutationFn: async (data: LoginSchema) =>
-      api.auth.login.$post({ json: data }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'], type: 'all' })
-      router.invalidate()
-    },
-    onError: () => {
-      toast.error('Something went wrong, please try again')
-    }
-  })
+  const login = async (data: LoginSchema) => {
+    await signIn.email(
+      {
+        email: data.email,
+        password: data.password
+      },
+      {
+        onRequest: () => {
+          setIsLoading(true)
+        },
+        onError: (ctx) => {
+          setIsLoading(false)
+          toast.error(ctx.error.message)
+        }
+      }
+    )
+  }
 
   return (
     <Card className="mx-auto mt-40 max-w-sm">
@@ -59,7 +64,7 @@ function LoginPage() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit((data) => login(data))}>
+        <form onSubmit={handleSubmit(login)}>
           <div className="grid gap-8">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
@@ -91,7 +96,7 @@ function LoginPage() {
                 <p className="text-red-500">{errors.password.message}</p>
               )}
             </div>
-            <Button type="submit" disabled={isPending} className="w-full">
+            <Button type="submit" disabled={isLoading} className="w-full">
               Login
             </Button>
           </div>

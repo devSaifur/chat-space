@@ -23,7 +23,7 @@ export function ContactsList({
         <div
           onClick={() => setSelectedContact(contact)}
           key={contact.id}
-          className={`flex cursor-pointer items-center p-3 ${contact.id === selectedContactId && 'bg-primary/20'}`}
+          className={`flex cursor-pointer items-center p-3 ${contact.id === selectedContactId && 'bg-secondary'}`}
         >
           <Avatar className="h-12 w-12">
             <AvatarImage src={''} alt={contact.name} />
