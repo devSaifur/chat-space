@@ -2,7 +2,7 @@ import type { Context } from 'hono'
 import type { WSContext, WSEvents } from 'hono/ws'
 
 import { handleRedisMessagePublishing } from '../lib/redis'
-import type { Env } from '../types'
+import type { ENV } from '../types'
 import { rabbitMQService } from './rabbitMq'
 import { WSMessageSchema, wsMessageSchema } from './validators/wsValidators'
 
@@ -23,7 +23,7 @@ export function sendMessageToClients(data: string) {
     }
 }
 
-export const wsHandler = (c: Context<Env>): WSEvents<WSRawData> => ({
+export const wsHandler = (c: Context<ENV>): WSEvents<WSRawData> => ({
     onOpen: async (evt, ws) => {
         console.log('WebSocket connection opened')
         activeConnections.add(ws)

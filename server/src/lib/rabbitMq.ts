@@ -8,6 +8,8 @@ class RabbitMQService {
     private connection: amqp.Connection | null = null
     private channel: amqp.Channel | null = null
     private readonly QUEUE_NAME = 'MESSAGES'
+    private batchSize = 10 // 10 messages
+    private timeout = 10000 // 10 seconds
 
     private async connect() {
         try {
@@ -18,15 +20,11 @@ class RabbitMQService {
                 durable: false
             })
 
-            this.connection.on('error', async (err) => {
-                console.error('RabbitMQ connection error:', err)
-                await this.connect()
-            })
+            await this.channel.prefetch(this.batchSize)
 
             console.log('RabbitMQ connected')
         } catch (err) {
             console.error('RabbitMQ connection error:', err)
-            // Retry connection after delay
             setTimeout(() => this.connect(), 5000)
         }
     }
@@ -40,7 +38,6 @@ class RabbitMQService {
             await this.connect()
         } catch (err) {
             console.error('RabbitMQ reconnection error:', err)
-            // Retry connection after delay
             setTimeout(() => this.reconnect(), 5000)
         }
     }
@@ -49,14 +46,14 @@ class RabbitMQService {
         try {
             if (!this.connection || !this.channel) {
                 await this.reconnect()
+                return
             }
 
-            this.channel?.sendToQueue(this.QUEUE_NAME, Buffer.from(msg), {
+            this.channel.sendToQueue(this.QUEUE_NAME, Buffer.from(msg), {
                 persistent: true
             })
         } catch (err) {
             console.error('RabbitMQ publish error:', err)
-            // Retry publishing after delay
             await this.reconnect()
             setTimeout(() => this.publishMessage(msg), 5000)
         }
@@ -66,22 +63,42 @@ class RabbitMQService {
         try {
             if (!this.connection || !this.channel) {
                 await this.reconnect()
+                return
             }
 
-            this.channel?.prefetch(1)
+            const messagesBulk = [] as WSMessageSchema[]
+            let timer: NodeJS.Timeout
 
-            await this.channel?.consume(this.QUEUE_NAME, async (msg) => {
-                if (msg) {
-                    try {
-                        await this.processMessage(msg.content.toString())
+            await this.channel.consume(
+                this.QUEUE_NAME,
+                async (msg) => {
+                    if (msg !== null) {
+                        try {
+                            const content = JSON.parse(msg.content.toString()) as WSMessageSchema
+                            messagesBulk.push(content)
+                            this.channel?.ack(msg)
 
-                        this.channel?.ack(msg)
-                    } catch (err) {
-                        console.error('RabbitMQ consume error:', err)
-                        this.channel?.reject(msg, true)
+                            if (messagesBulk.length >= this.batchSize) {
+                                clearTimeout(timer)
+                                await this.processMessage(messagesBulk)
+                                messagesBulk.length = 0
+                            } else {
+                                clearTimeout(timer)
+                                timer = setTimeout(async () => {
+                                    if (messagesBulk.length > 0) {
+                                        await this.processMessage(messagesBulk)
+                                        messagesBulk.length = 0
+                                    }
+                                }, this.timeout)
+                            }
+                        } catch (err) {
+                            console.error('RabbitMQ consume error:', err)
+                            this.channel?.nack(msg, false, true)
+                        }
                     }
-                }
-            })
+                },
+                { noAck: false }
+            )
         } catch (err) {
             console.error('RabbitMQ consume error:', err)
             // Retry consuming after delay
@@ -89,15 +106,16 @@ class RabbitMQService {
         }
     }
 
-    private async processMessage(msg: string) {
-        const { message, senderId, receiverId, sentAt } = JSON.parse(msg) as WSMessageSchema
+    private async processMessage(msgs: WSMessageSchema[]) {
+        const msgsToBeInserted = msgs.map((m) => ({
+            senderId: m.senderId,
+            receiverId: m.receiverId,
+            sentAt: new Date(m.sentAt),
+            content: m.message
+        }))
+
         try {
-            await db.insert(messages).values({
-                senderId,
-                receiverId,
-                sentAt: new Date(sentAt),
-                content: message
-            })
+            await db.insert(messages).values(msgsToBeInserted)
         } catch (err) {
             console.error('Error processing message:', err)
             throw err

@@ -13,3 +13,15 @@ export const contactsQueryOption = queryOptions({
   },
   staleTime: Infinity
 })
+
+export const userQueryOption = queryOptions({
+  queryKey: ['user'],
+  queryFn: async () => {
+    const res = await api.session.$get()
+    if (!res.ok) {
+      return null
+    }
+    return await res.json()
+  },
+  staleTime: Infinity
+})

@@ -4,8 +4,9 @@ import {
   registerSchema,
   RegisterSchema
 } from '@server/lib/validators/authValidators'
-import { createLazyFileRoute, Link } from '@tanstack/react-router'
+import { createLazyFileRoute, Link, useRouter } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 
 import { signUp } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
@@ -28,12 +29,12 @@ export const description =
 
 function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
 
   const { register, formState, handleSubmit } = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       name: '',
-      username: '',
       email: '',
       password: ''
     }
@@ -52,9 +53,13 @@ function RegisterPage() {
         onRequest: () => {
           setIsLoading(true)
         },
-        onError: (ctx) => {
+        onSuccess: () => {
           setIsLoading(false)
-          console.log(ctx.error)
+          toast.success('Account created successfully')
+          router.navigate({ to: '/login' })
+        },
+        onResponse: () => {
+          setIsLoading(false)
         }
       }
     )
@@ -69,23 +74,14 @@ function RegisterPage() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(handleSignUp)}>
+        <form onSubmit={handleSubmit((data) => handleSignUp(data))}>
           <div className="grid gap-8">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Name</Label>
-                <Input {...register('name')} placeholder="Max Robinson" />
-                {errors.name && (
-                  <p className="text-red-500">{errors.name.message}</p>
-                )}
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="username">Username</Label>
-                <Input {...register('username')} placeholder="max" />
-                {errors.username && (
-                  <p className="text-red-500">{errors.username.message}</p>
-                )}
-              </div>
+            <div className="grid gap-2">
+              <Label htmlFor="name">Name</Label>
+              <Input {...register('name')} placeholder="Max Robinson" />
+              {errors.name && (
+                <p className="text-red-500">{errors.name.message}</p>
+              )}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>

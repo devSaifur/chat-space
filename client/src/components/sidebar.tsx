@@ -29,7 +29,7 @@ export function Sidebar({
             src="/placeholder.svg?height=40&width=40"
             alt="Your avatar"
           />
-          <AvatarFallback>{user?.username}</AvatarFallback>
+          <AvatarFallback>{user?.name}</AvatarFallback>
         </Avatar>
         <div className="flex space-x-2">
           <Button variant="ghost" size="icon">

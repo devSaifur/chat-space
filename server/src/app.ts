@@ -9,7 +9,7 @@ import { apiRatelimit } from './lib/rate-limit'
 import { handleRedisMessageSubscription } from './lib/redis'
 import { wsHandler } from './lib/ws'
 import { authMiddleware } from './middleware'
-import { authRoutes } from './routes/authRoutes'
+import { authRoutes, sessionRoutes } from './routes/authRoutes'
 import { contactsRoutes } from './routes/contactsRoutes'
 import { messagesRoutes } from './routes/messagesRoutes'
 import { usersRoutes } from './routes/usersRoutes'
@@ -21,7 +21,17 @@ export const { upgradeWebSocket, injectWebSocket } = createNodeWebSocket({ app }
 app.use(logger())
 app.use(csrf())
 
-app.use(cors({ origin: '*' })) // TODO: Remove this on production
+app.use(
+    '/api/auth/**',
+    cors({
+        origin: 'http://localhost:5173',
+        allowHeaders: ['Content-Type', 'Authorization'],
+        allowMethods: ['POST', 'GET', 'OPTIONS'],
+        exposeHeaders: ['Content-Length'],
+        maxAge: 600,
+        credentials: true
+    })
+)
 
 app.use('/api/*', authMiddleware)
 app.use('/api/*', apiRatelimit)
@@ -29,6 +39,7 @@ app.use('/api/*', apiRatelimit)
 const apiServer = app
     .basePath('/api')
     .route('/auth', authRoutes)
+    .route('/session', sessionRoutes)
     .route('/users', usersRoutes)
     .route('/contacts', contactsRoutes)
     .route('/messages', messagesRoutes)

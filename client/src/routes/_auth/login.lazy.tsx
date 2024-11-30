@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LoginSchema, loginSchema } from '@server/lib/validators/authValidators'
-import { createLazyFileRoute, Link } from '@tanstack/react-router'
+import { useQueryClient } from '@tanstack/react-query'
+import { createLazyFileRoute, Link, useRouter } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -26,6 +27,8 @@ export const description =
 
 function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
+  const queryClient = useQueryClient()
 
   const { register, formState, handleSubmit } = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
@@ -50,6 +53,10 @@ function LoginPage() {
         onError: (ctx) => {
           setIsLoading(false)
           toast.error(ctx.error.message)
+        },
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['user'] })
+          router.invalidate()
         }
       }
     )
