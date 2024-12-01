@@ -1,4 +1,3 @@
-import { createId } from '@paralleldrive/cuid2'
 import { InferInsertModel, InferSelectModel, relations } from 'drizzle-orm'
 import { boolean, pgTable, serial, text, timestamp, unique, varchar } from 'drizzle-orm/pg-core'
 
@@ -106,45 +105,6 @@ export const messagesRelations = relations(messages, ({ one }) => ({
         references: [users.id]
     })
 }))
-
-export const groups = pgTable('groups', {
-    id: varchar('id', { length: 126 })
-        .primaryKey()
-        .$defaultFn(() => createId()),
-    name: varchar('name', { length: 126 }).notNull(),
-    createdAt: timestamp('created_at').defaultNow()
-})
-
-export const groupMembers = pgTable(
-    'group_members',
-    {
-        id: varchar('id', { length: 126 })
-            .primaryKey()
-            .$defaultFn(() => createId()),
-        groupId: varchar('group_id', { length: 126 })
-            .references(() => groups.id)
-            .notNull(),
-        userId: varchar('user_id', { length: 126 })
-            .references(() => users.id)
-            .notNull(),
-        joinedAt: timestamp('joined_at').defaultNow()
-    },
-    (table) => ({
-        uniqueGroupMember: unique().on(table.groupId, table.userId)
-    })
-)
-
-export const groupMessages = pgTable('group_messages', {
-    id: serial('id').primaryKey(),
-    groupId: varchar('group_id', { length: 126 })
-        .references(() => groups.id)
-        .notNull(),
-    senderId: varchar('sender_id', { length: 126 })
-        .references(() => users.id)
-        .notNull(),
-    content: text('content').notNull(),
-    sentAt: timestamp('sent_at').defaultNow()
-})
 
 export type User = InferSelectModel<typeof users>
 export type UserInsert = InferInsertModel<typeof users>

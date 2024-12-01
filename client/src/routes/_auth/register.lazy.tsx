@@ -4,6 +4,7 @@ import {
   registerSchema,
   RegisterSchema
 } from '@server/lib/validators/authValidators'
+import { useQueryClient } from '@tanstack/react-query'
 import { createLazyFileRoute, Link, useRouter } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -28,7 +29,8 @@ export const description =
   "A sign up form with first name, last name, email and password inside a card. There's an option to sign up with GitHub and a link to login if you already have an account"
 
 function RegisterPage() {
-  const [isLoading, setIsLoading] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const queryClient = useQueryClient()
   const router = useRouter()
 
   const { register, formState, handleSubmit } = useForm<RegisterSchema>({
@@ -51,15 +53,18 @@ function RegisterPage() {
       },
       {
         onRequest: () => {
-          setIsLoading(true)
-        },
-        onSuccess: () => {
-          setIsLoading(false)
-          toast.success('Account created successfully')
-          router.navigate({ to: '/login' })
+          setLoading(true)
         },
         onResponse: () => {
-          setIsLoading(false)
+          setLoading(false)
+        },
+        onSuccess: () => {
+          toast.success('Account created successfully')
+          queryClient.invalidateQueries({ queryKey: ['user'], type: 'all' })
+          router.invalidate()
+        },
+        onError: (ctx) => {
+          toast.error(ctx.error.message)
         }
       }
     )
@@ -74,7 +79,7 @@ function RegisterPage() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit((data) => handleSignUp(data))}>
+        <form onSubmit={handleSubmit(handleSignUp)}>
           <div className="grid gap-8">
             <div className="grid gap-2">
               <Label htmlFor="name">Name</Label>
@@ -97,7 +102,7 @@ function RegisterPage() {
                 <p className="text-red-500">{errors.password.message}</p>
               )}
             </div>
-            <Button type="submit" disabled={isLoading} className="w-full">
+            <Button type="submit" disabled={loading} className="w-full">
               Create an account
             </Button>
           </div>

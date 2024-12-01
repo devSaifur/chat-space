@@ -22,17 +22,11 @@ app.use(logger())
 app.use(csrf())
 
 app.use(
-    '/api/auth/**',
+    '*',
     cors({
-        origin: 'http://localhost:5173',
-        allowHeaders: ['Content-Type', 'Authorization'],
-        allowMethods: ['POST', 'GET', 'OPTIONS'],
-        exposeHeaders: ['Content-Length'],
-        maxAge: 600,
-        credentials: true
+        origin: '*'
     })
 )
-
 app.use('/api/*', authMiddleware)
 app.use('/api/*', apiRatelimit)
 
@@ -58,7 +52,7 @@ async function initServices() {
 initServices()
 
 app.onError((err, c) => {
-    console.dir(`Error: ${err.message}`)
+    console.log(`Error: ${err.message}`)
     return c.json({ error: 'Something went wrong' }, 500)
 })
 
