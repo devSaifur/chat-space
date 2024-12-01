@@ -1,4 +1,4 @@
-import { eq, or } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 
 import { db } from '../lib/pg'
 import { contact, user } from '../lib/pg/schema'

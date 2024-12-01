@@ -11,7 +11,7 @@ export async function getUserByEmail(email: string) {
 
 export async function getAllUsers(userId: string) {
     const existingContacts = await db
-        .select({ contactId: contact.contactId })
+        .select({ contactId: contact.contactId, userId: user.id })
         .from(contact)
         .where(eq(contact.userId, userId))
 
@@ -21,5 +21,10 @@ export async function getAllUsers(userId: string) {
             ...rest
         })
         .from(user)
-        .where(and(ne(user.id, userId), notInArray(user.id, [...existingContacts.map((contact) => contact.contactId)])))
+        .where(
+            and(
+                ne(user.id, userId),
+                notInArray(user.id, [...existingContacts.map((contact) => contact.contactId || contact.userId)])
+            )
+        )
 }
