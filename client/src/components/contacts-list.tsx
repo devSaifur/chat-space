@@ -26,8 +26,8 @@ export function ContactsList({
           className={`flex cursor-pointer items-center p-3 ${contact.id === selectedContactId && 'bg-secondary'}`}
         >
           <Avatar className="h-12 w-12">
-            <AvatarImage src={''} alt={contact.name} />
-            <AvatarFallback>{contact.name[0]}</AvatarFallback>
+            <AvatarImage src={''} alt={contact?.name} />
+            <AvatarFallback>{contact?.name[0]}</AvatarFallback>
           </Avatar>
           <div className="ml-3 flex-1">
             <div className="flex justify-between">

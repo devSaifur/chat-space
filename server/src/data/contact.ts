@@ -1,23 +1,22 @@
-import { eq, getTableColumns } from 'drizzle-orm'
+import { eq, or } from 'drizzle-orm'
 
 import { db } from '../lib/pg'
-import { contacts, messages, users } from '../lib/pg/schema'
+import { contact, user } from '../lib/pg/schema'
 
 export async function getAllUserContacts(userId: string) {
-    return await db
+    return db
         .select({
-            id: users.id,
-            name: users.name,
-            username: users.username,
-            lastLogin: users.lastLogin
+            id: user.id,
+            name: user.name,
+            email: user.email
         })
-        .from(contacts)
-        .where(eq(contacts.userId, userId))
-        .innerJoin(users, eq(users.id, contacts.contactId))
+        .from(user)
+        .innerJoin(contact, eq(user.id, contact.userId))
+        .where(eq(contact.contactId, userId))
 }
 
 export async function addContact(userId: string, contactId: string) {
-    await db.insert(contacts).values({
+    await db.insert(contact).values({
         userId,
         contactId
     })

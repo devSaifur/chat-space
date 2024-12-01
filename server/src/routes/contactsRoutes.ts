@@ -3,9 +3,9 @@ import { Hono } from 'hono'
 import * as z from 'zod'
 
 import { addContact, getAllUserContacts } from '../data/contact'
-import { getAllUsers, getUserByUsername } from '../data/user'
+import { getUserByEmail } from '../data/user'
 import { getUser } from '../middleware'
-import type { Env } from '../types'
+import type { ENV } from '../types'
 
 type Message = {
     id: number
@@ -24,24 +24,19 @@ type Contact = {
     messages: Message[]
 }
 
-export const contactsRoutes = new Hono<Env>()
+export const contactsRoutes = new Hono<ENV>()
     .get('/', getUser, async (c) => {
         const user = c.get('user')
 
         const userContacts = await getAllUserContacts(user.id)
 
-        console.dir(userContacts, {
-            depth: Infinity,
-            numericSeparater: true
-        })
-
         return c.json(userContacts, 200)
     })
-    .post('/add', getUser, zValidator('json', z.string().min(1).max(20)), async (c) => {
-        const username = c.req.valid('json')
+    .post('/add', getUser, zValidator('json', z.string().email()), async (c) => {
+        const email = c.req.valid('json')
         const user = c.get('user')
 
-        const toBeAddedUser = await getUserByUsername(username)
+        const toBeAddedUser = await getUserByEmail(email)
 
         if (!toBeAddedUser) {
             return c.json({ error: 'User not found' }, 404)

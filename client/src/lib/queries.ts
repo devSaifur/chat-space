@@ -10,8 +10,7 @@ export const contactsQueryOption = queryOptions({
       return null
     }
     return res.json()
-  },
-  staleTime: Infinity
+  }
 })
 
 export const userQueryOption = queryOptions({

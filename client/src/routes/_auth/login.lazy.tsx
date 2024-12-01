@@ -3,10 +3,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { LoginSchema, loginSchema } from '@server/lib/validators/authValidators'
 import { useQueryClient } from '@tanstack/react-query'
 import { createLazyFileRoute, Link, useRouter } from '@tanstack/react-router'
+import { Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
-import { signIn } from '@/lib/auth'
+import { signIn, useSession } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -26,9 +27,9 @@ export const description =
   "A login form with email and password. There's an option to login with Google and a link to sign up if you don't have an account."
 
 function LoginPage() {
-  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const queryClient = useQueryClient()
+  const { isPending } = useSession()
 
   const { register, formState, handleSubmit } = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
@@ -46,13 +47,10 @@ function LoginPage() {
         email: data.email,
         password: data.password
       },
+
       {
-        onRequest: () => {
-          setIsLoading(true)
-        },
-        onError: (ctx) => {
-          setIsLoading(false)
-          toast.error(ctx.error.message)
+        onError: (err) => {
+          toast.error(err.error.message)
         },
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ['user'] })
@@ -103,8 +101,12 @@ function LoginPage() {
                 <p className="text-red-500">{errors.password.message}</p>
               )}
             </div>
-            <Button type="submit" disabled={isLoading} className="w-full">
-              Login
+            <Button type="submit" disabled={isPending} className="w-full">
+              {isPending ? (
+                <Loader2 className="size-5 animate-spin" />
+              ) : (
+                'Login'
+              )}
             </Button>
           </div>
         </form>

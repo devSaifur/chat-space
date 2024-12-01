@@ -1,7 +1,7 @@
 import { InferInsertModel, InferSelectModel, relations } from 'drizzle-orm'
-import { boolean, pgTable, serial, text, timestamp, unique, varchar } from 'drizzle-orm/pg-core'
+import { boolean, pgTable, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core'
 
-export const users = pgTable('user', {
+export const user = pgTable('user', {
     id: text('id').primaryKey(),
     name: text('name').notNull(),
     email: text('email').notNull().unique(),
@@ -21,7 +21,7 @@ export const session = pgTable('session', {
     userAgent: text('userAgent'),
     userId: text('userId')
         .notNull()
-        .references(() => users.id)
+        .references(() => user.id)
 })
 
 export const account = pgTable('account', {
@@ -30,7 +30,7 @@ export const account = pgTable('account', {
     providerId: text('providerId').notNull(),
     userId: text('userId')
         .notNull()
-        .references(() => users.id),
+        .references(() => user.id),
     accessToken: text('accessToken'),
     refreshToken: text('refreshToken'),
     idToken: text('idToken'),
@@ -51,60 +51,53 @@ export const verification = pgTable('verification', {
     updatedAt: timestamp('updatedAt')
 })
 
-export const usersRelations = relations(users, ({ many, one }) => ({
-    contacts: one(contacts, {
-        fields: [users.id],
-        references: [contacts.userId]
+export const userRelations = relations(user, ({ many, one }) => ({
+    contacts: one(contact, {
+        fields: [user.id],
+        references: [contact.userId]
     }),
-    messages: one(messages, { fields: [users.id], references: [messages.senderId] })
+    messages: one(message, { fields: [user.id], references: [message.senderId] })
 }))
 
-export const contacts = pgTable(
-    'contacts',
-    {
-        id: serial('id').primaryKey(),
-        userId: varchar('user_id', { length: 126 })
-            .references(() => users.id)
-            .notNull(),
-        contactId: varchar('contact_id')
-            .references(() => users.id)
-            .notNull(),
-        createdAt: timestamp('created_at').defaultNow()
-    },
-    (table) => ({
-        uniqueContact: unique().on(table.userId, table.contactId)
-    })
-)
-
-export const contactsRelations = relations(contacts, ({ one }) => ({
-    user: one(users, {
-        fields: [contacts.userId],
-        references: [users.id]
-    })
-}))
-
-export const messages = pgTable('messages', {
+export const contact = pgTable('contacts', {
     id: serial('id').primaryKey(),
-    senderId: varchar('sender_id', { length: 126 })
-        .references(() => users.id)
+    userId: text('user_id')
+        .references(() => user.id)
         .notNull(),
-    receiverId: varchar('receiver_id', { length: 126 })
-        .references(() => users.id)
+    contactId: varchar('contact_id')
+        .references(() => user.id)
+        .notNull(),
+    createdAt: timestamp('created_at').defaultNow()
+})
+
+export const contactRelations = relations(contact, ({ one }) => ({
+    user: one(user, {
+        fields: [contact.userId],
+        references: [user.id]
+    })
+}))
+
+export const message = pgTable('message', {
+    id: serial('id').primaryKey(),
+    senderId: text('sender_id')
+        .references(() => user.id)
+        .notNull(),
+    receiverId: text('receiver_id')
+        .references(() => user.id)
         .notNull(),
     content: text('content').notNull(),
     sentAt: timestamp('sent_at').defaultNow().notNull()
 })
 
-export const messagesRelations = relations(messages, ({ one }) => ({
-    sender: one(users, {
-        fields: [messages.senderId],
-        references: [users.id]
+export const messagesRelations = relations(message, ({ one }) => ({
+    sender: one(user, {
+        fields: [message.senderId],
+        references: [user.id]
     }),
-    receiver: one(users, {
-        fields: [messages.receiverId],
-        references: [users.id]
+    receiver: one(user, {
+        fields: [message.receiverId],
+        references: [user.id]
     })
 }))
 
-export type User = InferSelectModel<typeof users>
-export type UserInsert = InferInsertModel<typeof users>
+export type User = InferSelectModel<typeof user>

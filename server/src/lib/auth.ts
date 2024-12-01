@@ -20,5 +20,6 @@ export const auth = betterAuth({
                 return argon2verify(hash, password)
             }
         }
-    }
+    },
+    trustedOrigins: ['http://localhost:5173']
 })

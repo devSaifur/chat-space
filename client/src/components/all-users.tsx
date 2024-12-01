@@ -25,9 +25,9 @@ export function AllUsers() {
   })
 
   const { mutate: addContact, isPending } = useMutation({
-    mutationFn: async (username: string) => {
+    mutationFn: async (email: string) => {
       const res = await api.contacts.add.$post({
-        json: username
+        json: email
       })
       if (!res.ok) {
         throw new Error()
@@ -56,10 +56,7 @@ export function AllUsers() {
   return (
     <ScrollArea className="h-[calc(100vh-120px)]">
       {users?.map((user) => (
-        <div
-          key={user.username}
-          className="flex cursor-pointer items-center p-3"
-        >
+        <div key={user.name} className="flex cursor-pointer items-center p-3">
           <Avatar className="h-12 w-12">
             <AvatarImage src={undefined} alt={user.name} />
             <AvatarFallback>{user.name[0].toUpperCase()}</AvatarFallback>
@@ -68,7 +65,7 @@ export function AllUsers() {
             <p className="font-semibold">{user.name}</p>
           </div>
           <Button
-            onClick={() => addContact(user.username)}
+            onClick={() => addContact(user.email)}
             disabled={isPending || isLoading}
             variant="ghost"
             size="icon"

@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   registerSchema,
@@ -6,10 +5,11 @@ import {
 } from '@server/lib/validators/authValidators'
 import { useQueryClient } from '@tanstack/react-query'
 import { createLazyFileRoute, Link, useRouter } from '@tanstack/react-router'
+import { Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
-import { signUp } from '@/lib/auth'
+import { signUp, useSession } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -29,9 +29,9 @@ export const description =
   "A sign up form with first name, last name, email and password inside a card. There's an option to sign up with GitHub and a link to login if you already have an account"
 
 function RegisterPage() {
-  const [loading, setLoading] = useState(false)
   const queryClient = useQueryClient()
   const router = useRouter()
+  const { isPending } = useSession()
 
   const { register, formState, handleSubmit } = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
@@ -52,12 +52,6 @@ function RegisterPage() {
         password: data.password
       },
       {
-        onRequest: () => {
-          setLoading(true)
-        },
-        onResponse: () => {
-          setLoading(false)
-        },
         onSuccess: () => {
           toast.success('Account created successfully')
           queryClient.invalidateQueries({ queryKey: ['user'], type: 'all' })
@@ -102,8 +96,12 @@ function RegisterPage() {
                 <p className="text-red-500">{errors.password.message}</p>
               )}
             </div>
-            <Button type="submit" disabled={loading} className="w-full">
-              Create an account
+            <Button type="submit" disabled={isPending} className="w-full">
+              {isPending ? (
+                <Loader2 className="size-5 animate-spin" />
+              ) : (
+                'Create an account'
+              )}
             </Button>
           </div>
         </form>
