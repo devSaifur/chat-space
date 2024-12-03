@@ -1,11 +1,9 @@
 import { useState } from 'react'
 import { Contact } from '@/types'
 import { createFileRoute } from '@tanstack/react-router'
-import { MoreVertical, Search } from 'lucide-react'
 
 import { api } from '@/lib/api'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
 import { ChatInput } from '@/components/chat-input'
 import { Chatbox } from '@/components/chatbox'
 import { PageLoader } from '@/components/page-loader'
@@ -54,12 +52,6 @@ function HomePage() {
                 <p className="font-semibold">{selectedContact.name}</p>
                 <p className="text-xs text-gray-500">Online</p>
               </div>
-              <Button variant="ghost" size="icon">
-                <Search className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon">
-                <MoreVertical className="h-5 w-5" />
-              </Button>
             </div>
             <Chatbox selectedContactId={selectedContactId} />
             <ChatInput selectedContactId={selectedContactId} />

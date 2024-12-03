@@ -57,8 +57,8 @@ function RegisterPage() {
           queryClient.invalidateQueries({ queryKey: ['user'], type: 'all' })
           router.invalidate()
         },
-        onError: (ctx) => {
-          toast.error(ctx.error.message)
+        onError: () => {
+          toast.error('Something went wrong')
         }
       }
     )

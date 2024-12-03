@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LoginSchema, loginSchema } from '@server/lib/validators/authValidators'
 import { useQueryClient } from '@tanstack/react-query'
@@ -49,8 +48,8 @@ function LoginPage() {
       },
 
       {
-        onError: (err) => {
-          toast.error(err.error.message)
+        onError: () => {
+          toast.error('Something went wrong')
         },
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ['user'] })

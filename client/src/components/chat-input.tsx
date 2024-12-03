@@ -2,7 +2,7 @@ import { FormEvent, useEffect, useRef, useState } from 'react'
 import { Message } from '@/types'
 import type { WSMessageSchema } from '@server/lib/validators/wsValidators'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Paperclip, Send } from 'lucide-react'
+import { Send } from 'lucide-react'
 
 import { userQueryOption } from '@/lib/queries'
 
@@ -48,10 +48,20 @@ export function ChatInput({ selectedContactId }: ChatInputProps) {
                   content: message
                 }
 
-                if (!oldMessages) {
+                const isDuplicate = oldMessages.some(
+                  (existingMessage) =>
+                    existingMessage.content === message &&
+                    existingMessage.senderId === senderId
+                )
+
+                if (isDuplicate) {
+                  return oldMessages
+                }
+
+                if (oldMessages.length === 0) {
                   return [newMessage]
                 }
-                return oldMessages.concat(newMessage).reverse()
+                return [newMessage, ...oldMessages]
               }
             )
           } else {
@@ -66,10 +76,21 @@ export function ChatInput({ selectedContactId }: ChatInputProps) {
                   content: message
                 }
 
-                if (!oldMessages) {
+                const isDuplicate = oldMessages.some(
+                  (existingMessage) =>
+                    existingMessage.content === message &&
+                    existingMessage.senderId === senderId
+                )
+
+                if (isDuplicate) {
+                  return oldMessages
+                }
+
+                if (oldMessages.length === 0) {
                   return [newMessage]
                 }
-                return oldMessages.concat(newMessage).reverse()
+
+                return [newMessage, ...oldMessages]
               }
             )
           }
@@ -99,9 +120,6 @@ export function ChatInput({ selectedContactId }: ChatInputProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex items-center p-4">
-      <Button variant="ghost" size="icon">
-        <Paperclip className="h-5 w-5" />
-      </Button>
       <Input
         placeholder="Type a message"
         value={message}

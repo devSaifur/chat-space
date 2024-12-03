@@ -1,13 +1,11 @@
 import type { Contact } from '@/types'
 import { useQuery } from '@tanstack/react-query'
-import { MoreVertical, Search } from 'lucide-react'
 
 import { userQueryOption } from '@/lib/queries'
 
 import { AllUsers } from './all-users'
 import { ContactsList } from './contacts-list'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
-import { Button } from './ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 
 interface SidebarProps {
@@ -31,20 +29,12 @@ export function Sidebar({
           />
           <AvatarFallback>{user?.name}</AvatarFallback>
         </Avatar>
-        <div className="flex space-x-2">
-          <Button variant="ghost" size="icon">
-            <Search className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <MoreVertical className="h-5 w-5" />
-          </Button>
-        </div>
       </div>
 
       <Tabs defaultValue="messages" className="w-full">
         <TabsList className="w-full rounded-none *:w-full">
           <TabsTrigger value="messages">Messages</TabsTrigger>
-          <TabsTrigger value="users">Friends</TabsTrigger>
+          <TabsTrigger value="users">Users</TabsTrigger>
         </TabsList>
         <TabsContent value="account">
           Make changes to your account here.

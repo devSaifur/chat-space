@@ -22,10 +22,9 @@ services:
       - "redis-data:/data"
 
   rabbitmq:
-    image: rabbitmq:4-management
+    image: rabbitmq:4-alpine
     ports:
-      - "5672:5672" # AMQP port
-      - "15672:15672" # Management UI port
+      - "5672:5672"
     volumes:
       - "rabbitmq-data:/var/lib/rabbitmq"
     environment:
