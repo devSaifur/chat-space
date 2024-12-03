@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { and, eq, or } from 'drizzle-orm'
 
 import { db } from '../lib/pg'
 import { contact, user } from '../lib/pg/schema'
@@ -10,9 +10,9 @@ export async function getAllUserContacts(userId: string) {
             name: user.name,
             email: user.email
         })
-        .from(user)
-        .innerJoin(contact, eq(user.id, contact.userId))
-        .where(eq(contact.contactId, userId))
+        .from(contact)
+        .rightJoin(user, eq(user.id, contact.userId))
+        .where(or(eq(contact.userId, userId), eq(contact.contactId, userId)))
 }
 
 export async function addContact(userId: string, contactId: string) {
@@ -20,4 +20,18 @@ export async function addContact(userId: string, contactId: string) {
         userId,
         contactId
     })
+}
+
+export async function checkUserAlreadyInContact(userId: string, contactId: string) {
+    const [existingContact] = await db
+        .select()
+        .from(contact)
+        .where(
+            or(
+                and(eq(contact.userId, userId), eq(contact.contactId, contactId)),
+                and(eq(contact.userId, contactId), eq(contact.contactId, userId))
+            )
+        )
+
+    return existingContact ? true : false
 }

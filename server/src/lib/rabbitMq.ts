@@ -1,15 +1,13 @@
 import * as amqp from 'amqplib'
 
 import { db } from './pg'
-import { messages } from './pg/schema'
+import { message } from './pg/schema'
 import { WSMessageSchema } from './validators/wsValidators'
 
 class RabbitMQService {
     private connection: amqp.Connection | null = null
     private channel: amqp.Channel | null = null
     private readonly QUEUE_NAME = 'MESSAGES'
-    private batchSize = 10 // 10 messages
-    private timeout = 10000 // 10 seconds
 
     private async connect() {
         try {
@@ -19,8 +17,6 @@ class RabbitMQService {
             await this.channel.assertQueue(this.QUEUE_NAME, {
                 durable: false
             })
-
-            await this.channel.prefetch(this.batchSize)
 
             console.log('RabbitMQ connected')
         } catch (err) {
@@ -62,43 +58,24 @@ class RabbitMQService {
     public async startConsuming() {
         try {
             if (!this.connection || !this.channel) {
-                await this.reconnect()
-                return
+                await this.connect()
             }
 
-            const messagesBulk = [] as WSMessageSchema[]
-            let timer: NodeJS.Timeout
+            this.channel?.prefetch(1)
 
-            await this.channel.consume(
-                this.QUEUE_NAME,
-                async (msg) => {
-                    if (msg !== null) {
-                        try {
-                            const content = JSON.parse(msg.content.toString()) as WSMessageSchema
-                            messagesBulk.push(content)
-                            this.channel?.ack(msg)
-
-                            if (messagesBulk.length >= this.batchSize) {
-                                clearTimeout(timer)
-                                await this.processMessage(messagesBulk)
-                                messagesBulk.length = 0
-                            } else {
-                                clearTimeout(timer)
-                                timer = setTimeout(async () => {
-                                    if (messagesBulk.length > 0) {
-                                        await this.processMessage(messagesBulk)
-                                        messagesBulk.length = 0
-                                    }
-                                }, this.timeout)
-                            }
-                        } catch (err) {
-                            console.error('RabbitMQ consume error:', err)
-                            this.channel?.nack(msg, false, true)
-                        }
+            await this.channel?.consume(this.QUEUE_NAME, async (msg) => {
+                if (msg) {
+                    console.log('QUE MESSAGE', msg.content.toString())
+                    try {
+                        const content = JSON.parse(msg.content.toString()) as WSMessageSchema
+                        await this.processMessage(content)
+                        this.channel?.ack(msg)
+                    } catch (err) {
+                        console.error('RabbitMQ consume error:', err)
+                        this.channel?.nack(msg, false, true)
                     }
-                },
-                { noAck: false }
-            )
+                }
+            })
         } catch (err) {
             console.error('RabbitMQ consume error:', err)
             // Retry consuming after delay
@@ -106,16 +83,14 @@ class RabbitMQService {
         }
     }
 
-    private async processMessage(msgs: WSMessageSchema[]) {
-        const msgsToBeInserted = msgs.map((m) => ({
-            senderId: m.senderId,
-            receiverId: m.receiverId,
-            sentAt: new Date(m.sentAt),
-            content: m.message
-        }))
-
+    private async processMessage(msg: WSMessageSchema) {
         try {
-            await db.insert(messages).values(msgsToBeInserted)
+            await db.insert(message).values({
+                senderId: msg.senderId,
+                receiverId: msg.receiverId,
+                sentAt: new Date(msg.sentAt),
+                content: msg.message
+            })
         } catch (err) {
             console.error('Error processing message:', err)
             throw err

@@ -36,6 +36,7 @@ apiServer.get('/', upgradeWebSocket(wsHandler as any))
 async function initServices() {
     try {
         await handleRedisMessageSubscription()
+
         await rabbitMQService.startConsuming()
     } catch (err) {
         console.error(err)

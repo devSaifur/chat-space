@@ -9,7 +9,7 @@ const sendCommand = (...args) => redisClient.call(...args)
 
 export const apiRatelimit = rateLimiter({
     windowMs: 5 * 60 * 1000, // 5 minutes
-    limit: 100, // Limit each IP to 100 requests per `window` (here, per 5 minutes).
+    limit: 1000, // Limit each IP to 100 requests per `window` (here, per 5 minutes).
     standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
     keyGenerator: (c) => c.req.header('x-forwarded-for') ?? '', // limit by ip
 
