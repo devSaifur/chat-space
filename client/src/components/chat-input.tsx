@@ -48,20 +48,10 @@ export function ChatInput({ selectedContactId }: ChatInputProps) {
                   content: message
                 }
 
-                const isDuplicate = oldMessages.some(
-                  (existingMessage) =>
-                    existingMessage.content === message &&
-                    existingMessage.senderId === senderId
-                )
-
-                if (isDuplicate) {
-                  return oldMessages
-                }
-
                 if (oldMessages.length === 0) {
                   return [newMessage]
                 }
-                return [newMessage, ...oldMessages]
+                return oldMessages.concat([newMessage])
               }
             )
           } else {
@@ -76,21 +66,11 @@ export function ChatInput({ selectedContactId }: ChatInputProps) {
                   content: message
                 }
 
-                const isDuplicate = oldMessages.some(
-                  (existingMessage) =>
-                    existingMessage.content === message &&
-                    existingMessage.senderId === senderId
-                )
-
-                if (isDuplicate) {
-                  return oldMessages
-                }
-
                 if (oldMessages.length === 0) {
                   return [newMessage]
                 }
 
-                return [newMessage, ...oldMessages]
+                return oldMessages.concat([newMessage])
               }
             )
           }

@@ -1,4 +1,4 @@
-import { and, eq, or } from 'drizzle-orm'
+import { and, eq, ne, or } from 'drizzle-orm'
 
 import { db } from '../lib/pg'
 import { contact, user } from '../lib/pg/schema'
@@ -11,7 +11,7 @@ export async function getAllUserContacts(userId: string) {
             email: user.email
         })
         .from(contact)
-        .rightJoin(user, eq(user.id, contact.userId))
+        .innerJoin(user, and(or(eq(user.id, contact.userId), eq(user.id, contact.contactId)), ne(user.id, userId)))
         .where(or(eq(contact.userId, userId), eq(contact.contactId, userId)))
 }
 

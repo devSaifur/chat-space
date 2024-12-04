@@ -8,4 +8,4 @@ export type Contact = InferResponseType<typeof contacts>[number]
 
 const msg = api.messages.$get
 
-export type Message = InferResponseType<typeof msg>[number]
+export type Message = InferResponseType<typeof msg>['messages'][number]

@@ -5,8 +5,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { api } from '@/lib/api'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ChatInput } from '@/components/chat-input'
-import { Chatbox } from '@/components/chatbox'
-import { PageLoader } from '@/components/page-loader'
+import { LoadingSpinner } from '@/components/loading-spinner'
+import { MessagesContainer } from '@/components/messages-container'
 import { Sidebar } from '@/components/sidebar'
 
 export const Route = createFileRoute('/_protected/')({
@@ -18,7 +18,7 @@ export const Route = createFileRoute('/_protected/')({
     }
     return res.json()
   },
-  pendingComponent: PageLoader
+  pendingComponent: LoadingSpinner
 })
 
 function HomePage() {
@@ -53,7 +53,7 @@ function HomePage() {
                 <p className="text-xs text-gray-500">Online</p>
               </div>
             </div>
-            <Chatbox selectedContactId={selectedContactId} />
+            <MessagesContainer selectedContactId={selectedContactId} />
             <ChatInput selectedContactId={selectedContactId} />
           </>
         )}
