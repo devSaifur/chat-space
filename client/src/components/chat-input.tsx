@@ -14,7 +14,7 @@ interface ChatInputProps {
   selectedContactId: string
 }
 
-const wsUrl = 'ws://localhost:5173/api'
+const wsUrl = `ws://${window.location.host}/api`
 
 export function ChatInput({ selectedContactId }: ChatInputProps) {
   const [message, setMessage] = useState('')

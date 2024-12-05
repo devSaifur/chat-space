@@ -1,4 +1,3 @@
-import { hash as argon2hash, verify as argon2verify } from '@node-rs/argon2'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 
@@ -11,15 +10,7 @@ export const auth = betterAuth({
     emailAndPassword: {
         enabled: true,
         maxPasswordLength: 100,
-        minPasswordLength: 6,
-        password: {
-            hash(password) {
-                return argon2hash(password)
-            },
-            verify(hash, password) {
-                return argon2verify(hash, password)
-            }
-        }
+        minPasswordLength: 6
     },
     trustedOrigins: ['http://localhost:5173']
 })

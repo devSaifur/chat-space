@@ -6,7 +6,9 @@
     "clean": "rm -rf node_modules && rm -rf client/node_modules && rm -rf server/node_modules",
     "dev:server": "pnpm --prefix server dev",
     "dev:client": "pnpm --prefix client dev",
-    "dev": "concurrently \"pnpm dev:server\" \"pnpm dev:client\""
+    "dev": "concurrently \"pnpm dev:server\" \"pnpm dev:client\"",
+    "build": "pnpm --prefix client build",
+    "start": "pnpm --prefix server start"
   },
   "keywords": [],
   "author": "",
@@ -19,7 +21,7 @@
     "@ianvs/prettier-plugin-sort-imports": "^4.4.0",
     "@types/node": "^22.10.1",
     "concurrently": "^9.1.0",
-    "prettier": "^3.4.1",
+    "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.9"
   }
 }

@@ -1,3 +1,4 @@
+import { serveStatic } from '@hono/node-server/serve-static'
 import { createNodeWebSocket } from '@hono/node-ws'
 import { Hono } from 'hono'
 import { csrf } from 'hono/csrf'
@@ -36,7 +37,6 @@ apiServer.get('/', upgradeWebSocket(wsHandler as any))
 async function initServices() {
     try {
         await handleRedisMessageSubscription()
-
         await rabbitMQService.startConsuming()
     } catch (err) {
         console.error(err)
@@ -49,6 +49,8 @@ app.onError((err, c) => {
     console.log(`Error: ${err.message}`)
     return c.json({ error: 'Something went wrong' }, 500)
 })
+
+app.use('*', serveStatic({ root: './public' }))
 
 export type ApiServer = typeof apiServer
 
