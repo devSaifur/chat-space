@@ -84,6 +84,7 @@ class RabbitMQService {
     }
 
     private async processMessage(msg: WSMessageSchema) {
+        console.log('Processing message:', msg)
         try {
             await db.insert(message).values({
                 senderId: msg.senderId,

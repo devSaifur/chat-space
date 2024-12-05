@@ -32,13 +32,7 @@ export function ContactsList({
           <div className="ml-3 flex-1">
             <div className="flex justify-between">
               <p className="font-semibold">{contact.name}</p>
-              <p className="text-xs text-gray-500">
-                {new Date().toLocaleString()}
-              </p>
             </div>
-            <p className="truncate text-sm text-gray-300">
-              {'No messages yet'}
-            </p>
           </div>
         </div>
       ))}

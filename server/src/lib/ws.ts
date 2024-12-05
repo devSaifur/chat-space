@@ -39,9 +39,11 @@ export const wsHandler = (c: Context<ENV>): WSEvents<WSRawData> => ({
     onMessage: async (msg, ws) => {
         if (ws.raw?.userId && typeof msg.data === 'string') {
             const wsData = JSON.parse(msg.data)
+            console.log({ wsData })
             const validatedFields = wsMessageSchema.safeParse(wsData)
 
             if (!validatedFields.success) {
+                console.log('Invalid ws data')
                 return ws.send(JSON.stringify({ type: 'status', data: 'invalid data' }))
             }
 
