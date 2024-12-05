@@ -1,5 +1,7 @@
 Who said websockets are hard to scale? well it's hard but not that hard! :')
 
+![alt text](screenshot.png)
+
 # A simple chat application with websockets.
 
 ## Fully Scalable with [Redis](https://redis.io/) and [RabbitMQ](https://www.rabbitmq.com/)
