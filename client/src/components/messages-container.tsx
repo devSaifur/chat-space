@@ -62,7 +62,7 @@ export function MessagesContainer({ selectedContactId }: ChatboxProps) {
   return (
     <div
       ref={containerRef}
-      className="flex flex-1 flex-col-reverse overflow-y-auto p-4"
+      className="flex flex-1 flex-col-reverse overflow-y-auto p-4 text-white dark:text-gray-200"
     >
       {data.pages.map((page, i) => (
         <div key={i}>

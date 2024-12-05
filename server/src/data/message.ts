@@ -4,7 +4,7 @@ import { db } from '../lib/pg'
 import { message } from '../lib/pg/schema'
 
 export async function getMessagesOfUser(userId: string, otherUserId: string, cursor?: number) {
-    const messages = await db
+    return db
         .select()
         .from(message)
         .where(
@@ -18,6 +18,4 @@ export async function getMessagesOfUser(userId: string, otherUserId: string, cur
         )
         .limit(15)
         .orderBy(desc(message.id))
-
-    return messages.reverse()
 }

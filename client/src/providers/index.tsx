@@ -21,7 +21,7 @@ declare module '@tanstack/react-router' {
 
 export default function AppWithProviders() {
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} context={{ queryClient }} />
       </QueryClientProvider>

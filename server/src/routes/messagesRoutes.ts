@@ -18,6 +18,6 @@ export const messagesRoutes = new Hono().get(
         const messages = await getMessagesOfUser(senderId, user.id, Number(cursor))
         const nextCursor = messages.length === 15 ? messages[messages.length - 1].id : undefined
 
-        return c.json({ nextCursor, messages }, 200)
+        return c.json({ nextCursor, messages: messages.reverse() }, 200)
     }
 )
